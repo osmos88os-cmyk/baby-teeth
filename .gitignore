@@ -1,0 +1,6 @@
+.vscode/
+.idea/
+*.log
+__pycache__/
+test_app.py
+generate_icons.py
