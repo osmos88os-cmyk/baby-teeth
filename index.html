@@ -9,54 +9,55 @@
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="default">
   <meta name="apple-mobile-web-app-title" content="Зубки">
-  <meta name="theme-color" content="#0ea5e9">
+  <meta name="theme-color" content="#0f172a">
   <link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
   <link rel="icon" type="image/png" href="icons/icon-192.png">
   <link rel="manifest" href="manifest.json">
 
-  <!-- Стили -->
+  <!-- Стили Polaris (Behance Concept) -->
   <link rel="stylesheet" href="css/style.css">
 
-  <!-- Локальные скрипты вендоров (для мгновенной работы оффлайн) -->
+  <!-- Локальные скрипты вендоров (оффлайн работа) -->
   <script src="vendor/tailwind.js"></script>
   <script src="vendor/vue.global.prod.js"></script>
   <script src="vendor/confetti.browser.min.js"></script>
 </head>
 <body class="bg-slate-50 text-slate-800 antialiased select-none">
-  <div id="app" class="flex flex-col min-h-screen max-w-md mx-auto bg-white shadow-xl relative pb-24">
+  <div id="app" class="flex flex-col min-h-screen max-w-md mx-auto bg-slate-50 relative pb-28">
     
-    <!-- ВЕРХНЯЯ ШАПКА ПРИЛОЖЕНИЯ (iOS Header) -->
-    <header class="safe-top px-4 pt-3 pb-3 bg-white/90 backdrop-blur-md sticky top-0 z-30 border-b border-slate-100 flex items-center justify-between">
-      <div class="flex items-center space-x-2">
-        <div class="w-9 h-9 rounded-2xl bg-gradient-to-tr from-sky-400 to-teal-400 flex items-center justify-center text-white shadow-sm font-bold text-lg">
+    <!-- ШАПКА ПРИЛОЖЕНИЯ (Polaris Header) -->
+    <header class="safe-top px-4 pt-3 pb-3 bg-white/80 backdrop-blur-md sticky top-0 z-30 border-b border-slate-100 flex items-center justify-between">
+      <div class="flex items-center space-x-2.5">
+        <div class="w-10 h-10 rounded-2xl bg-gradient-to-tr from-indigo-900 to-slate-800 flex items-center justify-center text-white shadow-sm font-bold text-lg border border-slate-700/20">
           🦷
         </div>
         <div>
-          <h1 class="font-bold text-slate-900 text-base leading-tight">{{ profile.babyName }}</h1>
-          <p class="text-xs text-slate-400">{{ todayFormatted }}</p>
+          <div class="flex items-center space-x-1.5">
+            <h1 class="font-bold text-slate-900 text-base leading-tight">{{ profile.babyName }}</h1>
+            <span class="w-2 h-2 rounded-full bg-emerald-500"></span>
+          </div>
+          <p class="text-xs text-slate-400 font-medium">{{ todayFormatted }}</p>
         </div>
       </div>
-      <div class="flex items-center space-x-1">
-        <!-- Кнопка звука -->
-        <button @click="toggleSound" class="w-9 h-9 rounded-full hover:bg-slate-100 active:bg-slate-200 flex items-center justify-center text-slate-600 transition">
+      <div class="flex items-center space-x-1.5">
+        <button @click="toggleSound" class="w-9 h-9 rounded-2xl bg-white border border-slate-200/80 hover:bg-slate-50 active:scale-95 flex items-center justify-center text-slate-700 shadow-sm transition">
           <span v-if="profile.soundEnabled">🔔</span>
           <span v-else>🔕</span>
         </button>
-        <!-- Кнопка настроек -->
-        <button @click="openSettings" class="w-9 h-9 rounded-full hover:bg-slate-100 active:bg-slate-200 flex items-center justify-center text-slate-600 transition">
+        <button @click="openSettings" class="w-9 h-9 rounded-2xl bg-white border border-slate-200/80 hover:bg-slate-50 active:scale-95 flex items-center justify-center text-slate-700 shadow-sm transition">
           ⚙️
         </button>
       </div>
     </header>
 
-    <!-- ПОДСКАЗКА ДЛЯ IPHONE (Добавить на экран «Домой») -->
-    <div v-if="showPwaBanner" class="mx-4 mt-3 p-3 bg-gradient-to-r from-sky-50 to-indigo-50 border border-sky-100 rounded-2xl relative flex items-start space-x-3 text-xs text-slate-600 shadow-sm">
+    <!-- ПОДСКАЗКА ДЛЯ IPHONE (PWA BANNER) -->
+    <div v-if="showPwaBanner" class="mx-4 mt-3 p-3.5 bg-gradient-to-r from-indigo-50 to-sky-50 border border-indigo-100/80 rounded-3xl relative flex items-start space-x-3 text-xs text-slate-700 shadow-sm">
       <div class="text-xl">📲</div>
       <div class="flex-1 pr-4">
-        <span class="font-semibold text-sky-900 block mb-0.5">Сделайте приложением на iPhone:</span>
-        Нажмите в Safari кнопку <b>«Поделиться»</b> (квадрат со стрелкой внизу) ➔ <b>«На экран Домой»</b>.
+        <span class="font-semibold text-slate-900 block mb-0.5">Установите на экран iPhone:</span>
+        В меню Safari нажмите <b>«Поделиться»</b> (значок со стрелочкой) ➔ <b>«На экран Домой»</b>.
       </div>
-      <button @click="dismissPwaBanner" class="absolute top-2 right-2 text-slate-400 hover:text-slate-600 p-1">
+      <button @click="dismissPwaBanner" class="absolute top-2.5 right-2.5 text-slate-400 hover:text-slate-600 p-1">
         ✕
       </button>
     </div>
@@ -66,141 +67,142 @@
     <!-- ========================================== -->
     <main v-show="currentTab === 'brush'" class="px-4 py-4 space-y-4 flex-1">
       
-      <!-- ГЛАВНАЯ КАРТОЧКА: ПОСЛЕДНЯЯ ЧИСТКА -->
-      <div class="ios-card bg-gradient-to-br from-sky-500 to-teal-500 rounded-3xl p-5 text-white relative overflow-hidden shadow-lg shadow-sky-500/20">
-        <div class="absolute -right-4 -bottom-4 text-white/10 text-9xl font-black pointer-events-none">🪥</div>
-        
+      <!-- HERO КАРТОЧКА POLARIS: ПОСЛЕДНЯЯ ЧИСТКА -->
+      <div class="polaris-hero p-5 text-white relative">
         <div class="flex items-center justify-between mb-2">
-          <span class="text-xs uppercase tracking-wider font-semibold text-sky-100 flex items-center space-x-1">
+          <span class="text-[11px] uppercase tracking-wider font-semibold text-indigo-200/80 flex items-center space-x-1.5">
             <span>⏱️</span>
             <span>Последняя чистка</span>
           </span>
-          <span class="bg-white/20 backdrop-blur-md px-2.5 py-0.5 rounded-full text-xs font-medium text-white">
-            {{ lastBrushing ? (lastBrushing.type === 'morning' ? '☀️ Утро' : (lastBrushing.type === 'evening' ? '🌙 Вечер' : '🌤️ День')) : '—' }}
+          <span class="bg-white/10 backdrop-blur-md px-3 py-1 rounded-full text-xs font-medium text-white flex items-center space-x-1.5 border border-white/10">
+            <span class="w-1.5 h-1.5 rounded-full bg-emerald-400 status-dot-pulse"></span>
+            <span>{{ lastBrushing ? (lastBrushing.type === 'morning' ? 'Утро' : (lastBrushing.type === 'evening' ? 'Вечер' : 'День')) : 'Нет записей' }}</span>
           </span>
         </div>
 
-        <div class="text-2xl font-bold tracking-tight mb-1">
+        <div class="text-2xl font-black tracking-tight mb-1 text-white">
           {{ lastBrushingText }}
         </div>
 
-        <!-- Отметки утро/вечер сегодня -->
-        <div class="mt-4 pt-3 border-t border-white/20 grid grid-cols-2 gap-2 text-xs">
-          <div class="flex items-center space-x-1.5">
-            <span class="text-sm">☀️</span>
-            <span :class="hasMorningBrush ? 'text-white font-semibold' : 'text-sky-100/70'">Утро:</span>
-            <span v-if="hasMorningBrush" class="text-emerald-200 font-bold">Чистили ✓</span>
-            <span v-else class="text-white/60">Еще нет</span>
+        <!-- Чек-листы на день -->
+        <div class="mt-4 pt-3.5 border-t border-white/10 grid grid-cols-2 gap-2 text-xs">
+          <div class="flex items-center space-x-2 bg-white/5 p-2 rounded-2xl border border-white/5">
+            <span class="text-base">☀️</span>
+            <div>
+              <span class="text-[10px] text-indigo-200 block">Утренняя</span>
+              <span v-if="hasMorningBrush" class="text-emerald-300 font-bold text-xs">Чистили ✓</span>
+              <span v-else class="text-white/50 text-xs">Ожидает</span>
+            </div>
           </div>
-          <div class="flex items-center space-x-1.5">
-            <span class="text-sm">🌙</span>
-            <span :class="hasEveningBrush ? 'text-white font-semibold' : 'text-sky-100/70'">Вечер:</span>
-            <span v-if="hasEveningBrush" class="text-emerald-200 font-bold">Чистили ✓</span>
-            <span v-else class="text-white/60">Еще нет</span>
+          <div class="flex items-center space-x-2 bg-white/5 p-2 rounded-2xl border border-white/5">
+            <span class="text-base">🌙</span>
+            <div>
+              <span class="text-[10px] text-indigo-200 block">Вечерняя</span>
+              <span v-if="hasEveningBrush" class="text-emerald-300 font-bold text-xs">Чистили ✓</span>
+              <span v-else class="text-white/50 text-xs">Ожидает</span>
+            </div>
           </div>
         </div>
       </div>
 
-      <!-- ГЛАВНАЯ КНОПКА ДЕЙСТВИЯ: ПОЧИСТИЛИ ЗУБКИ! -->
+      <!-- КНОПКИ ДЕЙСТВИЯ POLARIS -->
       <div class="space-y-2.5">
-        <button @click="openAddBrushModal()" class="w-full ios-btn-primary text-white py-4 px-6 rounded-2xl font-bold text-lg flex items-center justify-center space-x-2 shadow-lg">
+        <button @click="openAddBrushModal()" class="w-full polaris-btn-action text-white py-4 px-6 rounded-3xl font-bold text-lg flex items-center justify-center space-x-2 shadow-lg">
           <span class="text-2xl">🪥</span>
           <span>Почистили зубки!</span>
         </button>
 
-        <button @click="startBrushTimer(profile.timerDuration || 60)" class="w-full bg-white border border-sky-100 hover:bg-sky-50 active:scale-98 text-sky-700 py-3 px-4 rounded-2xl font-semibold text-sm flex items-center justify-center space-x-2 transition shadow-sm">
+        <button @click="startBrushTimer(profile.timerDuration || 60)" class="w-full bg-white border border-slate-200/80 hover:bg-slate-50 active:scale-98 text-slate-800 py-3.5 px-4 rounded-3xl font-semibold text-sm flex items-center justify-center space-x-2 transition shadow-sm">
           <span class="text-lg">⏱️</span>
-          <span>Включить таймер чистки ({{ profile.timerDuration || 60 }} сек)</span>
+          <span>Запустить таймер чистки ({{ profile.timerDuration || 60 }} сек)</span>
         </button>
       </div>
 
-      <!-- РЕЖИМ АКТИВНОГО ТАЙМЕРА (АНИМАЦИЯ ДЛЯ МАЛЫША) -->
-      <div v-if="isTimerRunning" class="ios-card bg-amber-50/90 border-2 border-amber-300 rounded-3xl p-5 text-center relative overflow-hidden animate-pulse-subtle">
-        <div class="flex justify-between items-center mb-3">
-          <span class="text-xs font-bold uppercase tracking-wider text-amber-800">Чистим зубки вместе!</span>
-          <button @click="stopBrushTimer" class="text-xs text-amber-700 bg-amber-200/60 px-2 py-1 rounded-lg">Отмена</button>
+      <!-- РЕЖИМ АКТИВНОГО ТАЙМЕРА POLARIS -->
+      <div v-if="isTimerRunning" class="polaris-card bg-gradient-to-b from-amber-50/90 to-white border-2 border-amber-300/80 p-5 text-center relative overflow-hidden">
+        <div class="flex justify-between items-center mb-2">
+          <span class="text-xs font-bold uppercase tracking-wider text-amber-800">Чистим зубки вместе</span>
+          <button @click="stopBrushTimer" class="text-xs text-amber-800 bg-amber-100 px-2.5 py-1 rounded-xl font-medium">Отмена</button>
         </div>
 
-        <!-- Анимированный персонаж -->
         <div class="my-3 flex justify-center items-center">
           <div class="relative w-36 h-36 flex items-center justify-center">
-            <!-- SVG Progress Circle -->
             <svg class="w-36 h-36 transform -rotate-90">
-              <circle cx="72" cy="72" r="62" stroke="#fde68a" stroke-width="8" fill="transparent" />
+              <circle cx="72" cy="72" r="62" stroke="#fef3c7" stroke-width="8" fill="transparent" />
               <circle cx="72" cy="72" r="62" stroke="#f59e0b" stroke-width="8" fill="transparent"
                       stroke-dasharray="389.5"
                       :stroke-dashoffset="389.5 - (389.5 * timerProgress) / 100"
                       stroke-linecap="round" class="progress-ring__circle" />
             </svg>
             <div class="absolute inset-0 flex flex-col items-center justify-center">
-              <span class="text-4xl animate-brush">🪥</span>
-              <span class="text-2xl font-black text-slate-800 font-mono mt-1">{{ timerMinutesStr }}</span>
+              <span class="text-3xl animate-brush-float">🪥</span>
+              <span class="text-2xl font-black text-slate-900 font-mono mt-1">{{ timerMinutesStr }}</span>
             </div>
           </div>
         </div>
 
-        <p class="text-xs text-amber-800 font-medium">Круговыми движениями, со всех сторон! ✨</p>
+        <p class="text-xs text-amber-900 font-medium">Круговыми движениями, не пропуская ни один зубик! ✨</p>
         
-        <div class="mt-4 flex space-x-2">
-          <button @click="finishBrushTimer" class="flex-1 bg-amber-500 hover:bg-amber-600 active:scale-95 text-white font-bold py-2.5 px-4 rounded-xl text-sm transition shadow-sm">
+        <div class="mt-4">
+          <button @click="finishBrushTimer" class="w-full bg-amber-500 hover:bg-amber-600 active:scale-95 text-white font-bold py-3 px-4 rounded-2xl text-sm transition shadow-sm">
             Завершить досрочно ✓
           </button>
         </div>
       </div>
 
-      <!-- ВИДЖЕТ СЕРИИ И НЕДЕЛЬНЫЙ КАЛЕНДАРЬ -->
-      <div class="ios-card bg-white rounded-3xl p-4 border border-slate-100">
+      <!-- СЕРИЯ И НЕДЕЛЬНЫЙ КАЛЕНДАРЬ -->
+      <div class="polaris-card p-4">
         <div class="flex items-center justify-between mb-3">
           <div class="flex items-center space-x-1.5">
             <span class="text-lg">🔥</span>
             <span class="font-bold text-slate-900 text-sm">Серия чисток:</span>
-            <span class="text-sky-600 font-bold text-sm">{{ streakDays }} {{ streakText }}</span>
+            <span class="text-indigo-600 font-bold text-sm">{{ streakDays }} {{ streakText }}</span>
           </div>
-          <span class="text-xs text-slate-400">Эта неделя</span>
+          <span class="text-[11px] text-slate-400 font-medium">Эта неделя</span>
         </div>
 
         <div class="grid grid-cols-7 gap-1.5 text-center">
           <div v-for="day in weekDays" :key="day.dateStr" 
                :class="['p-2 rounded-2xl flex flex-col items-center justify-between border transition', 
-                        day.isToday ? 'border-sky-400 bg-sky-50/50' : 'border-slate-100 bg-slate-50/50']">
+                        day.isToday ? 'border-indigo-500 bg-indigo-50/50 shadow-sm' : 'border-slate-100 bg-slate-50/50']">
             <span class="text-[10px] font-semibold text-slate-400">{{ day.dayName }}</span>
-            <span class="text-xs font-bold my-1 text-slate-700">{{ day.dayNum }}</span>
+            <span class="text-xs font-bold my-1 text-slate-800">{{ day.dayNum }}</span>
             <div class="flex space-x-0.5">
               <span class="w-1.5 h-1.5 rounded-full" :class="day.morning ? 'bg-amber-400' : 'bg-slate-200'"></span>
-              <span class="w-1.5 h-1.5 rounded-full" :class="day.evening ? 'bg-indigo-500' : 'bg-slate-200'"></span>
+              <span class="w-1.5 h-1.5 rounded-full" :class="day.evening ? 'bg-indigo-600' : 'bg-slate-200'"></span>
             </div>
           </div>
         </div>
         <div class="flex justify-center space-x-4 mt-3 text-[11px] text-slate-500">
-          <span class="flex items-center space-x-1"><span class="w-2 h-2 rounded-full bg-amber-400"></span><span>Утро</span></span>
-          <span class="flex items-center space-x-1"><span class="w-2 h-2 rounded-full bg-indigo-500"></span><span>Вечер</span></span>
+          <span class="flex items-center space-x-1.5"><span class="w-2 h-2 rounded-full bg-amber-400"></span><span>Утро</span></span>
+          <span class="flex items-center space-x-1.5"><span class="w-2 h-2 rounded-full bg-indigo-600"></span><span>Вечер</span></span>
         </div>
       </div>
 
-      <!-- СПИСОК ПОСЛЕДНИХ ЧИСТОК -->
-      <div class="ios-card bg-white rounded-3xl p-4 border border-slate-100">
+      <!-- ИСТОРИЯ ЧИСТОК -->
+      <div class="polaris-card p-4">
         <div class="flex items-center justify-between mb-3">
-          <h2 class="font-bold text-slate-800 text-sm">История за последнее время</h2>
-          <span class="text-xs text-slate-400">{{ brushings.length }} записей</span>
+          <h2 class="font-bold text-slate-900 text-sm">Недавние чистки</h2>
+          <span class="text-xs text-slate-400 font-medium">{{ brushings.length }} записей</span>
         </div>
 
         <div v-if="brushings.length === 0" class="py-6 text-center text-slate-400 text-xs">
-          Пока нет записей. Нажмите «Почистили зубки!», чтобы добавить первую!
+          Пока нет записей. Нажмите «Почистили зубки!», чтобы зафиксировать первую чистку.
         </div>
 
         <div v-else class="space-y-2 max-h-56 overflow-y-auto no-scrollbar pr-1">
-          <div v-for="item in brushings.slice(0, 7)" :key="item.id" 
-               class="flex items-center justify-between p-2.5 rounded-xl bg-slate-50 border border-slate-100 text-xs">
-            <div class="flex items-center space-x-2.5">
-              <span class="text-base">
+          <div v-for="item in brushings.slice(0, 6)" :key="item.id" 
+               class="flex items-center justify-between p-3 rounded-2xl bg-slate-50 border border-slate-100 text-xs">
+            <div class="flex items-center space-x-3">
+              <span class="text-lg">
                 {{ item.type === 'morning' ? '☀️' : (item.type === 'evening' ? '🌙' : '🌤️') }}
               </span>
               <div>
-                <span class="font-semibold text-slate-800 block">
+                <span class="font-semibold text-slate-900 block">
                   {{ item.type === 'morning' ? 'Утренняя чистка' : (item.type === 'evening' ? 'Вечерняя чистка' : 'Дневная чистка') }}
                 </span>
                 <span class="text-slate-400 text-[11px]">{{ formatTimestamp(item.timestamp) }}</span>
-                <span v-if="item.note" class="block text-[11px] text-sky-600 italic mt-0.5">{{ item.note }}</span>
+                <span v-if="item.note" class="block text-[11px] text-indigo-600 italic mt-0.5">{{ item.note }}</span>
               </div>
             </div>
             <button @click="deleteBrushingItem(item.id)" class="text-slate-300 hover:text-rose-500 p-1 text-sm transition">
@@ -216,161 +218,216 @@
     <!-- ========================================== -->
     <main v-show="currentTab === 'teeth'" class="px-4 py-4 space-y-4 flex-1">
       
-      <!-- СВОДКА ПРОРЕЗЫВАНИЯ ЗУБОК -->
-      <div class="ios-card bg-white rounded-3xl p-4 border border-slate-100">
+      <!-- СВОДКА ПРОРЕЗЫВАНИЯ -->
+      <div class="polaris-card p-4">
         <div class="flex items-center justify-between mb-2">
           <span class="text-xs uppercase tracking-wider font-semibold text-slate-400">Прогресс прорезывания</span>
-          <span class="text-xs font-bold text-sky-600">{{ teethStats.erupted }} из 20 ({{ teethStats.percent }}%)</span>
+          <span class="text-xs font-bold text-slate-900">{{ teethStats.erupted }} из 20 ({{ teethStats.percent }}%)</span>
         </div>
 
         <div class="w-full bg-slate-100 h-2.5 rounded-full overflow-hidden mb-3">
-          <div class="bg-gradient-to-r from-teal-400 to-sky-500 h-full rounded-full transition-all duration-500"
+          <div class="bg-gradient-to-r from-teal-400 to-indigo-600 h-full rounded-full transition-all duration-500"
                :style="{ width: teethStats.percent + '%' }"></div>
         </div>
 
-        <!-- Бейджи статистики -->
         <div class="grid grid-cols-3 gap-2 text-center text-xs">
-          <div class="bg-emerald-50 border border-emerald-100 p-2 rounded-2xl">
-            <span class="block text-emerald-800 font-bold text-base leading-tight">{{ teethStats.erupted }}</span>
-            <span class="text-emerald-700 text-[10px]">🟢 Вылезли</span>
+          <div class="bg-emerald-50/80 border border-emerald-100 p-2.5 rounded-2xl">
+            <span class="block text-emerald-800 font-black text-lg leading-tight">{{ teethStats.erupted }}</span>
+            <span class="text-emerald-700 text-[10px] font-semibold">🟢 Вылезли</span>
           </div>
-          <div class="bg-amber-50 border border-amber-100 p-2 rounded-2xl">
-            <span class="block text-amber-800 font-bold text-base leading-tight">{{ teethStats.erupting }}</span>
-            <span class="text-amber-700 text-[10px]">🟡 Режутся</span>
+          <div class="bg-amber-50/80 border border-amber-100 p-2.5 rounded-2xl">
+            <span class="block text-amber-800 font-black text-lg leading-tight">{{ teethStats.erupting }}</span>
+            <span class="text-amber-700 text-[10px] font-semibold">🟡 Режутся</span>
           </div>
-          <div class="bg-slate-50 border border-slate-100 p-2 rounded-2xl">
-            <span class="block text-slate-600 font-bold text-base leading-tight">{{ teethStats.none }}</span>
-            <span class="text-slate-500 text-[10px]">⚪ Еще нет</span>
+          <div class="bg-slate-50 border border-slate-100 p-2.5 rounded-2xl">
+            <span class="block text-slate-600 font-black text-lg leading-tight">{{ teethStats.none }}</span>
+            <span class="text-slate-500 text-[10px] font-semibold">⚪ Еще нет</span>
           </div>
         </div>
       </div>
 
-      <!-- ПЕРЕКЛЮЧАТЕЛЬ: СХЕМА ЧЕЛЮСТИ / СПИСОК -->
-      <div class="bg-slate-200/70 p-1 rounded-2xl flex text-xs font-semibold">
-        <button @click="teethViewMode = 'jaw'" 
-                :class="['flex-1 py-1.5 rounded-xl transition', teethViewMode === 'jaw' ? 'bg-white text-slate-900 shadow-sm' : 'text-slate-600']">
-          🦷 Схема челюсти
-        </button>
-        <button @click="teethViewMode = 'list'" 
-                :class="['flex-1 py-1.5 rounded-xl transition', teethViewMode === 'list' ? 'bg-white text-slate-900 shadow-sm' : 'text-slate-600']">
-          📋 Хронология ({{ eruptedList.length }})
+      <!-- ПАНЕЛЬ УПРАВЛЕНИЯ: РЕЖИМЫ И ТУМБЛЕР НОМЕРОВ -->
+      <div class="flex items-center justify-between space-x-2">
+        <!-- Переключатель Схема / Список -->
+        <div class="bg-slate-200/80 p-1 rounded-2xl flex text-xs font-semibold flex-1">
+          <button @click="teethViewMode = 'jaw'" 
+                  :class="['flex-1 py-1.5 rounded-xl transition', teethViewMode === 'jaw' ? 'bg-white text-slate-900 shadow-sm' : 'text-slate-600']">
+            🦷 Схема
+          </button>
+          <button @click="teethViewMode = 'list'" 
+                  :class="['flex-1 py-1.5 rounded-xl transition', teethViewMode === 'list' ? 'bg-white text-slate-900 shadow-sm' : 'text-slate-600']">
+            📋 Хронология ({{ eruptedList.length }})
+          </button>
+        </div>
+
+        <!-- Кнопка Вкл/Выкл номеров зубок -->
+        <button @click="toggleToothNumbers" 
+                :class="['px-3 py-2 rounded-2xl text-xs font-semibold border flex items-center space-x-1 transition shadow-sm', 
+                         showToothNumbers ? 'bg-indigo-900 text-white border-indigo-900' : 'bg-white text-slate-600 border-slate-200']">
+          <span>#</span>
+          <span>Номера: {{ showToothNumbers ? 'Вкл' : 'Выкл' }}</span>
         </button>
       </div>
 
-      <!-- РЕЖИМ 1: ИНТЕРАКТИВНАЯ СХЕМА ЧЕЛЮСТИ -->
+      <!-- КНОПКА БЫСТРОЙ ОТМЕТКИ СТАРЫХ ЗУБОК -->
+      <div class="bg-gradient-to-r from-violet-50 to-indigo-50 border border-violet-100 p-3 rounded-2xl flex items-center justify-between text-xs shadow-sm">
+        <div class="flex items-center space-x-2">
+          <span class="text-base">✨</span>
+          <span class="text-violet-950 font-medium">У малыша уже есть зубки?</span>
+        </div>
+        <button @click="openBulkEarlierModal" class="bg-violet-600 hover:bg-violet-700 text-white px-3 py-1.5 rounded-xl font-bold text-xs shadow-sm active:scale-95 transition">
+          Отметить вылезшие ранее
+        </button>
+      </div>
+
+      <!-- РЕЖИМ 1: ИНТЕРАКТИВНАЯ АНАТОМИЧЕСКАЯ ЧЕЛЮСТЬ POLARIS -->
       <div v-show="teethViewMode === 'jaw'" class="space-y-4">
         
-        <!-- ВЕРХНЯЯ ЧЕЛЮСТЬ (АНАТОМИЧЕСКАЯ ДУГА) -->
-        <div class="ios-card bg-white rounded-3xl p-4 border border-slate-100">
+        <!-- ВЕРХНЯЯ ЧЕЛЮСТЬ -->
+        <div class="polaris-card p-4">
           <div class="flex items-center justify-between mb-1">
-            <h3 class="font-bold text-slate-800 text-xs flex items-center space-x-1">
+            <h3 class="font-bold text-slate-900 text-xs flex items-center space-x-1.5">
               <span>👄</span>
               <span>Верхняя челюсть</span>
             </h3>
-            <span class="text-[10px] text-slate-400">10 молочных зубок</span>
+            <span class="text-[10px] text-slate-400 font-medium">10 молочных зубок</span>
           </div>
           <div class="flex justify-between text-[10px] text-slate-400 mb-1 px-2 font-medium">
-            <span>← Правая щечка</span>
-            <span>Левая щечка →</span>
+            <span>← Правая сторона (у малыша)</span>
+            <span>Левая сторона →</span>
           </div>
 
           <!-- Дуга челюсти -->
-          <div class="relative w-full h-60 bg-gradient-to-b from-rose-50/50 via-slate-50/30 to-transparent rounded-2xl overflow-hidden border border-rose-100/50 my-1">
-            <!-- SVG контур десны -->
+          <div class="relative w-full h-64 bg-gradient-to-b from-rose-50/40 via-slate-50/20 to-transparent rounded-3xl overflow-hidden border border-rose-100/50 my-1">
+            <!-- Контур десны -->
             <svg class="absolute inset-0 w-full h-full pointer-events-none" viewBox="0 0 100 100" preserveAspectRatio="none">
-              <path d="M 12,82 C 16,32 36,14 50,14 C 64,14 84,32 88,82" fill="none" stroke="#fce7f3" stroke-width="14" stroke-linecap="round"/>
+              <path d="M 12,80 C 16,30 36,13 50,13 C 64,13 84,30 88,80" fill="none" stroke="#fce7f3" stroke-width="16" stroke-linecap="round"/>
+              <!-- Центральная осевая риска -->
+              <line x1="50" y1="5" x2="50" y2="20" stroke="#f43f5e" stroke-width="1.5" stroke-dasharray="2,2" opacity="0.4"/>
             </svg>
 
             <!-- 10 зубиков верхней челюсти -->
-            <button v-for="t in upperTeeth" :key="t.id" 
-                    @click="openToothModal(t)"
-                    :style="{ left: t.x + '%', top: t.y + '%' }"
-                    :title="t.fullName"
-                    :class="[
-                      'absolute transform -translate-x-1/2 -translate-y-1/2 w-11 h-11 rounded-2xl border flex flex-col items-center justify-center transition shadow-sm tooth-card',
-                      getToothState(t.id).status === 'erupted' ? 'bg-emerald-50 border-emerald-400 text-emerald-900 shadow-emerald-200' :
-                      getToothState(t.id).status === 'erupting' ? 'bg-amber-50 border-amber-400 text-amber-900 tooth-erupting' :
-                      'bg-white border-slate-200 text-slate-500 hover:bg-slate-50'
-                    ]">
-              <span class="text-sm leading-none">
-                <span v-if="getToothState(t.id).status === 'erupted'">🦷</span>
-                <span v-else-if="getToothState(t.id).status === 'erupting'">✨</span>
-                <span v-else class="opacity-40">🦷</span>
-              </span>
-              <span class="text-[9px] font-bold leading-none mt-0.5" :class="getToothState(t.id).status === 'none' ? 'text-slate-400' : ''">{{ t.id }}</span>
+            <div v-for="t in upperTeeth" :key="t.id"
+                 :style="{ left: t.x + '%', top: t.y + '%' }"
+                 class="absolute transform -translate-x-1/2 -translate-y-1/2 flex flex-col items-center">
               
-              <!-- Бейджик статуса -->
-              <span v-if="getToothState(t.id).status === 'erupted'" class="absolute -top-1 -right-1 bg-emerald-500 text-white rounded-full w-3.5 h-3.5 flex items-center justify-center text-[9px] font-bold shadow-sm">✓</span>
-              <span v-else-if="getToothState(t.id).status === 'erupting'" class="absolute -top-1 -right-1 bg-amber-500 text-white rounded-full w-3.5 h-3.5 flex items-center justify-center text-[9px] font-bold shadow-sm">!</span>
-            </button>
+              <!-- ВНЕШНИЙ МИКРО-НОМЕР ЗУБИКА (НАД ЗУБОМ) -->
+              <div v-show="showToothNumbers"
+                   class="tooth-number-tag -top-4 text-[9px] font-bold text-indigo-700 bg-indigo-50 border border-indigo-200/80 px-1.5 py-0.2 rounded-md shadow-2xs mb-0.5">
+                {{ t.id }}
+              </div>
+
+              <!-- КНОПКА ЗУБИКА -->
+              <button @click="openToothModal(t)"
+                      :title="t.fullName"
+                      :class="[
+                        'w-11 h-11 rounded-2xl border flex items-center justify-center transition tooth-button shadow-sm relative',
+                        getToothState(t.id).status === 'erupted' ? 'bg-emerald-50 border-emerald-400 shadow-emerald-200 text-emerald-800' :
+                        getToothState(t.id).status === 'erupted_earlier' ? 'bg-violet-50 border-violet-400 shadow-violet-200 text-violet-800' :
+                        getToothState(t.id).status === 'erupting' ? 'bg-amber-50 border-amber-400 text-amber-900 tooth-glow-amber' :
+                        'bg-white border-slate-200/90 text-slate-400 hover:bg-slate-50'
+                      ]">
+                <span class="text-base leading-none">
+                  <span v-if="getToothState(t.id).status === 'erupted'">🦷</span>
+                  <span v-else-if="getToothState(t.id).status === 'erupted_earlier'">🦷</span>
+                  <span v-else-if="getToothState(t.id).status === 'erupting'">✨</span>
+                  <span v-else class="opacity-30">🦷</span>
+                </span>
+
+                <!-- Индикатор статуса -->
+                <span v-if="getToothState(t.id).status === 'erupted'" 
+                      class="absolute -top-1 -right-1 bg-emerald-500 text-white rounded-full w-3.5 h-3.5 flex items-center justify-center text-[8px] font-bold shadow-sm">✓</span>
+                <span v-else-if="getToothState(t.id).status === 'erupted_earlier'" 
+                      class="absolute -top-1 -right-1 bg-violet-600 text-white rounded-full w-3.5 h-3.5 flex items-center justify-center text-[8px] font-bold shadow-sm">★</span>
+                <span v-else-if="getToothState(t.id).status === 'erupting'" 
+                      class="absolute -top-1 -right-1 bg-amber-500 text-white rounded-full w-3.5 h-3.5 flex items-center justify-center text-[8px] font-bold shadow-sm">!</span>
+              </button>
+            </div>
           </div>
         </div>
 
-        <!-- НИЖНЯЯ ЧЕЛЮСТЬ (АНАТОМИЧЕСКАЯ ДУГА) -->
-        <div class="ios-card bg-white rounded-3xl p-4 border border-slate-100">
+        <!-- НИЖНЯЯ ЧЕЛЮСТЬ -->
+        <div class="polaris-card p-4">
           <div class="flex items-center justify-between mb-1">
-            <h3 class="font-bold text-slate-800 text-xs flex items-center space-x-1">
+            <h3 class="font-bold text-slate-900 text-xs flex items-center space-x-1.5">
               <span>👄</span>
               <span>Нижняя челюсть</span>
             </h3>
-            <span class="text-[10px] text-slate-400">10 молочных зубок</span>
+            <span class="text-[10px] text-slate-400 font-medium">10 молочных зубок</span>
           </div>
           <div class="flex justify-between text-[10px] text-slate-400 mb-1 px-2 font-medium">
-            <span>← Правая щечка</span>
-            <span>Левая щечка →</span>
+            <span>← Правая сторона (у малыша)</span>
+            <span>Левая сторона →</span>
           </div>
 
           <!-- Дуга челюсти -->
-          <div class="relative w-full h-60 bg-gradient-to-t from-rose-50/50 via-slate-50/30 to-transparent rounded-2xl overflow-hidden border border-rose-100/50 my-1">
-            <!-- SVG контур десны -->
+          <div class="relative w-full h-64 bg-gradient-to-t from-rose-50/40 via-slate-50/20 to-transparent rounded-3xl overflow-hidden border border-rose-100/50 my-1">
             <svg class="absolute inset-0 w-full h-full pointer-events-none" viewBox="0 0 100 100" preserveAspectRatio="none">
-              <path d="M 12,18 C 16,68 36,86 50,86 C 64,86 84,68 88,18" fill="none" stroke="#fce7f3" stroke-width="14" stroke-linecap="round"/>
+              <path d="M 12,20 C 16,70 36,87 50,87 C 64,87 84,70 88,20" fill="none" stroke="#fce7f3" stroke-width="16" stroke-linecap="round"/>
+              <line x1="50" y1="80" x2="50" y2="95" stroke="#f43f5e" stroke-width="1.5" stroke-dasharray="2,2" opacity="0.4"/>
             </svg>
 
             <!-- 10 зубиков нижней челюсти -->
-            <button v-for="t in lowerTeeth" :key="t.id" 
-                    @click="openToothModal(t)"
-                    :style="{ left: t.x + '%', top: t.y + '%' }"
-                    :title="t.fullName"
-                    :class="[
-                      'absolute transform -translate-x-1/2 -translate-y-1/2 w-11 h-11 rounded-2xl border flex flex-col items-center justify-center transition shadow-sm tooth-card',
-                      getToothState(t.id).status === 'erupted' ? 'bg-emerald-50 border-emerald-400 text-emerald-900 shadow-emerald-200' :
-                      getToothState(t.id).status === 'erupting' ? 'bg-amber-50 border-amber-400 text-amber-900 tooth-erupting' :
-                      'bg-white border-slate-200 text-slate-500 hover:bg-slate-50'
-                    ]">
-              <span class="text-sm leading-none">
-                <span v-if="getToothState(t.id).status === 'erupted'">🦷</span>
-                <span v-else-if="getToothState(t.id).status === 'erupting'">✨</span>
-                <span v-else class="opacity-40">🦷</span>
-              </span>
-              <span class="text-[9px] font-bold leading-none mt-0.5" :class="getToothState(t.id).status === 'none' ? 'text-slate-400' : ''">{{ t.id }}</span>
+            <div v-for="t in lowerTeeth" :key="t.id"
+                 :style="{ left: t.x + '%', top: t.y + '%' }"
+                 class="absolute transform -translate-x-1/2 -translate-y-1/2 flex flex-col items-center">
               
-              <span v-if="getToothState(t.id).status === 'erupted'" class="absolute -top-1 -right-1 bg-emerald-500 text-white rounded-full w-3.5 h-3.5 flex items-center justify-center text-[9px] font-bold shadow-sm">✓</span>
-              <span v-else-if="getToothState(t.id).status === 'erupting'" class="absolute -top-1 -right-1 bg-amber-500 text-white rounded-full w-3.5 h-3.5 flex items-center justify-center text-[9px] font-bold shadow-sm">!</span>
-            </button>
+              <!-- КНОПКА ЗУБИКА -->
+              <button @click="openToothModal(t)"
+                      :title="t.fullName"
+                      :class="[
+                        'w-11 h-11 rounded-2xl border flex items-center justify-center transition tooth-button shadow-sm relative',
+                        getToothState(t.id).status === 'erupted' ? 'bg-emerald-50 border-emerald-400 shadow-emerald-200 text-emerald-800' :
+                        getToothState(t.id).status === 'erupted_earlier' ? 'bg-violet-50 border-violet-400 shadow-violet-200 text-violet-800' :
+                        getToothState(t.id).status === 'erupting' ? 'bg-amber-50 border-amber-400 text-amber-900 tooth-glow-amber' :
+                        'bg-white border-slate-200/90 text-slate-400 hover:bg-slate-50'
+                      ]">
+                <span class="text-base leading-none">
+                  <span v-if="getToothState(t.id).status === 'erupted'">🦷</span>
+                  <span v-else-if="getToothState(t.id).status === 'erupted_earlier'">🦷</span>
+                  <span v-else-if="getToothState(t.id).status === 'erupting'">✨</span>
+                  <span v-else class="opacity-30">🦷</span>
+                </span>
+
+                <span v-if="getToothState(t.id).status === 'erupted'" 
+                      class="absolute -top-1 -right-1 bg-emerald-500 text-white rounded-full w-3.5 h-3.5 flex items-center justify-center text-[8px] font-bold shadow-sm">✓</span>
+                <span v-else-if="getToothState(t.id).status === 'erupted_earlier'" 
+                      class="absolute -top-1 -right-1 bg-violet-600 text-white rounded-full w-3.5 h-3.5 flex items-center justify-center text-[8px] font-bold shadow-sm">★</span>
+                <span v-else-if="getToothState(t.id).status === 'erupting'" 
+                      class="absolute -top-1 -right-1 bg-amber-500 text-white rounded-full w-3.5 h-3.5 flex items-center justify-center text-[8px] font-bold shadow-sm">!</span>
+              </button>
+
+              <!-- ВНЕШНИЙ МИКРО-НОМЕР ЗУБИКА (ПОД ЗУБОМ) -->
+              <div v-show="showToothNumbers"
+                   class="tooth-number-tag mt-0.5 text-[9px] font-bold text-indigo-700 bg-indigo-50 border border-indigo-200/80 px-1.5 py-0.2 rounded-md shadow-2xs">
+                {{ t.id }}
+              </div>
+            </div>
           </div>
         </div>
 
         <p class="text-center text-xs text-slate-400">
-          💡 Нажмите на любой зубик, чтобы отметить дату или симптомы
+          💡 Нажмите на любой зубик, чтобы отметить статус «Вылез», «Вылез ранее» или «Режется»
         </p>
       </div>
 
       <!-- РЕЖИМ 2: ХРОНОЛОГИЯ ПОЯВЛЕНИЯ ЗУБОВ -->
       <div v-show="teethViewMode === 'list'" class="space-y-3">
-        <div v-if="eruptedList.length === 0" class="ios-card bg-white rounded-3xl p-8 text-center text-slate-400 text-xs border border-slate-100">
+        <div v-if="eruptedList.length === 0" class="polaris-card p-8 text-center text-slate-400 text-xs">
           <div class="text-4xl mb-2">🦷</div>
-          Пока ни один зубик не отмечен как прорезавшийся или режущийся.<br>
-          Откройте схему челюсти и нажмите на нужный зуб!
+          Пока ни один зубик не отмечен.<br>
+          Нажмите на любой зуб на схеме или воспользуйтесь кнопкой «Отметить вылезшие ранее»!
         </div>
 
         <div v-else class="space-y-2">
           <div v-for="item in eruptedList" :key="item.id" 
                @click="openToothModal(item.info)"
-               class="ios-card bg-white rounded-2xl p-3 border border-slate-100 flex items-start space-x-3 active:scale-98 transition">
+               class="polaris-card p-3.5 flex items-start space-x-3 active:scale-98 transition">
             <div :class="[
               'w-10 h-10 rounded-2xl flex items-center justify-center text-lg shadow-sm font-bold',
-              item.status === 'erupted' ? 'bg-emerald-100 text-emerald-700' : 'bg-amber-100 text-amber-700'
+              item.status === 'erupted' ? 'bg-emerald-100 text-emerald-800' :
+              item.status === 'erupted_earlier' ? 'bg-violet-100 text-violet-800' :
+              'bg-amber-100 text-amber-800'
             ]">
               🦷
             </div>
@@ -379,15 +436,18 @@
                 <h4 class="font-bold text-slate-900 text-xs">{{ item.info.fullName }} ({{ item.id }})</h4>
                 <span :class="[
                   'text-[10px] font-semibold px-2 py-0.5 rounded-full',
-                  item.status === 'erupted' ? 'bg-emerald-50 text-emerald-700 border border-emerald-200' : 'bg-amber-50 text-amber-700 border border-amber-200'
+                  item.status === 'erupted' ? 'bg-emerald-50 text-emerald-700 border border-emerald-200' :
+                  item.status === 'erupted_earlier' ? 'bg-violet-50 text-violet-700 border border-violet-200' :
+                  'bg-amber-50 text-amber-700 border border-amber-200'
                 ]">
-                  {{ item.status === 'erupted' ? 'Вылез ✓' : 'Режется ✨' }}
+                  {{ item.status === 'erupted' ? 'Вылез ✓' : (item.status === 'erupted_earlier' ? 'Вылез ранее ★' : 'Режется ✨') }}
                 </span>
               </div>
 
               <div class="flex items-center space-x-2 text-[11px] text-slate-500 mt-1">
-                <span>📅 {{ formatDateRu(item.date) }}</span>
-                <span v-if="item.ageText" class="text-sky-600 font-medium">({{ item.ageText }})</span>
+                <span v-if="item.isEarlier" class="text-violet-700 font-semibold">📅 Вылез ранее (точная дата неизвестна)</span>
+                <span v-else>📅 {{ formatDateRu(item.date) }}</span>
+                <span v-if="item.ageText" class="text-indigo-600 font-medium">({{ item.ageText }})</span>
               </div>
 
               <!-- Симптомы -->
@@ -398,8 +458,7 @@
                 </span>
               </div>
 
-              <!-- Заметка -->
-              <p v-if="item.notes" class="text-[11px] text-slate-600 italic mt-1 bg-slate-50 p-1.5 rounded-lg border border-slate-100">
+              <p v-if="item.notes" class="text-[11px] text-slate-600 italic mt-1 bg-slate-50 p-2 rounded-xl border border-slate-100">
                 «{{ item.notes }}»
               </p>
             </div>
@@ -414,51 +473,51 @@
     <main v-show="currentTab === 'history'" class="px-4 py-4 space-y-4 flex-1">
       
       <!-- ПРОФИЛЬ МАЛЫША -->
-      <div class="ios-card bg-white rounded-3xl p-5 border border-slate-100 space-y-3">
+      <div class="polaris-card p-5 space-y-3">
         <div class="flex items-center justify-between">
-          <h2 class="font-bold text-slate-900 text-sm flex items-center space-x-1.5">
+          <h2 class="font-bold text-slate-900 text-sm flex items-center space-x-2">
             <span>👶</span>
             <span>Профиль малыша</span>
           </h2>
-          <button @click="openSettings" class="text-xs text-sky-600 font-semibold">Изменить</button>
+          <button @click="openSettings" class="text-xs text-indigo-600 font-bold">Изменить</button>
         </div>
 
         <div class="grid grid-cols-2 gap-3 text-xs">
-          <div class="bg-slate-50 p-2.5 rounded-xl border border-slate-100">
+          <div class="bg-slate-50 p-3 rounded-2xl border border-slate-100">
             <span class="text-slate-400 block text-[10px]">Имя:</span>
-            <span class="font-bold text-slate-800 text-sm">{{ profile.babyName }}</span>
+            <span class="font-bold text-slate-900 text-sm">{{ profile.babyName }}</span>
           </div>
-          <div class="bg-slate-50 p-2.5 rounded-xl border border-slate-100">
+          <div class="bg-slate-50 p-3 rounded-2xl border border-slate-100">
             <span class="text-slate-400 block text-[10px]">Дата рождения:</span>
-            <span class="font-bold text-slate-800 text-sm">
+            <span class="font-bold text-slate-900 text-sm">
               {{ profile.birthDate ? formatDateRu(profile.birthDate) : 'Не указана' }}
             </span>
           </div>
         </div>
       </div>
 
-      <!-- РЕЗЕРВНАЯ КОПИЯ И БЕЗОПАСНОСТЬ ДАННЫХ -->
-      <div class="ios-card bg-white rounded-3xl p-5 border border-slate-100 space-y-3">
-        <h2 class="font-bold text-slate-900 text-sm flex items-center space-x-1.5">
+      <!-- РЕЗЕРВНАЯ КОПИЯ ДАННЫХ -->
+      <div class="polaris-card p-5 space-y-3">
+        <h2 class="font-bold text-slate-900 text-sm flex items-center space-x-2">
           <span>🛡️</span>
           <span>Сохранение и Резервная копия</span>
         </h2>
         <p class="text-xs text-slate-500">
-          Все зубки и чистки сохраняются в памяти вашего телефона. Чтобы данные не пропали при смене телефона, можно скачать копию или скопировать ее в Telegram.
+          Все зубки и отметки чисток хранятся в памяти браузера iPhone. Вы можете скачать копию файла или скопировать данные в буфер обмена для Telegram.
         </p>
 
         <div class="space-y-2 pt-1">
-          <button @click="downloadBackup" class="w-full bg-sky-50 hover:bg-sky-100 active:scale-98 text-sky-700 py-2.5 px-3 rounded-xl font-semibold text-xs flex items-center justify-center space-x-2 transition border border-sky-100">
+          <button @click="downloadBackup" class="w-full bg-slate-50 hover:bg-slate-100 active:scale-98 text-slate-800 py-3 px-3 rounded-2xl font-semibold text-xs flex items-center justify-center space-x-2 transition border border-slate-200">
             <span>📥</span>
             <span>Скачать файл копии (JSON)</span>
           </button>
 
-          <button @click="copyBackupToClipboard" class="w-full bg-slate-50 hover:bg-slate-100 active:scale-98 text-slate-700 py-2.5 px-3 rounded-xl font-semibold text-xs flex items-center justify-center space-x-2 transition border border-slate-200">
+          <button @click="copyBackupToClipboard" class="w-full bg-slate-50 hover:bg-slate-100 active:scale-98 text-slate-800 py-3 px-3 rounded-2xl font-semibold text-xs flex items-center justify-center space-x-2 transition border border-slate-200">
             <span>📋</span>
             <span>Скопировать в буфер (для WhatsApp/Telegram)</span>
           </button>
 
-          <label class="w-full bg-slate-50 hover:bg-slate-100 active:scale-98 text-slate-700 py-2.5 px-3 rounded-xl font-semibold text-xs flex items-center justify-center space-x-2 transition border border-slate-200 cursor-pointer block text-center">
+          <label class="w-full bg-slate-50 hover:bg-slate-100 active:scale-98 text-slate-800 py-3 px-3 rounded-2xl font-semibold text-xs flex items-center justify-center space-x-2 transition border border-slate-200 cursor-pointer block text-center">
             <span>📤</span>
             <span>Восстановить из файла копии</span>
             <input type="file" accept=".json" @change="importBackupFromFile" class="hidden">
@@ -466,64 +525,217 @@
         </div>
       </div>
 
-      <!-- ИНСТРУКЦИЯ ПО УСТАНОВКЕ НА IPHONE -->
-      <div class="ios-card bg-gradient-to-br from-indigo-50 to-sky-50 rounded-3xl p-5 border border-indigo-100 space-y-2.5 text-xs text-slate-700">
-        <h3 class="font-bold text-indigo-900 text-sm flex items-center space-x-1.5">
-          <span>📲</span>
-          <span>Как сделать иконку на экране iPhone</span>
-        </h3>
-        <ol class="list-decimal list-inside space-y-1.5 text-slate-600">
-          <li>Откройте этот сайт в <b>Safari</b> на iPhone.</li>
-          <li>В нижней панели Safari нажмите значок <b>«Поделиться»</b> (квадрат со стрелкой вверх).</li>
-          <li>Прокрутите вниз и нажмите <b>«На экран Домой»</b>.</li>
-          <li>Нажмите <b>«Добавить»</b> в верхнем правом углу.</li>
-        </ol>
-        <p class="text-[11px] text-indigo-700 pt-1">
-          После этого сайт будет открываться как отдельное приложение без адресных строк Safari! ✨
-        </p>
-      </div>
-
-      <!-- КНОПКИ ДЕМО И ОЧИСТКИ -->
-      <div class="flex justify-between items-center text-xs text-slate-400 px-2 pt-2">
-        <button @click="loadDemo" class="text-sky-600 underline">Загрузить демо-пример</button>
+      <!-- ДЕМО И СБРОС -->
+      <div class="flex justify-between items-center text-xs text-slate-400 px-2 pt-1">
+        <button @click="loadDemo" class="text-indigo-600 underline">Загрузить демо-пример</button>
         <button @click="clearAllData" class="text-rose-500 underline">Сбросить все данные</button>
       </div>
     </main>
 
     <!-- ========================================== -->
-    <!-- НИЖНЯЯ ПАНЕЛЬ НАВИГАЦИИ (iOS TAB BAR)      -->
+    <!-- ПАРЯЩИЙ ТАБ-БАР POLARIS (FLOATING PILL DOCK) -->
     <!-- ========================================== -->
-    <nav class="fixed bottom-0 left-0 right-0 max-w-md mx-auto bg-white/95 backdrop-blur-lg border-t border-slate-200/80 tab-bar-safe flex justify-around items-center z-30 pt-2">
+    <nav class="fixed bottom-3 left-4 right-4 max-w-md mx-auto polaris-floating-dock py-2 px-3 flex justify-between items-center z-40">
       <!-- Вкладка Чистка -->
       <button @click="currentTab = 'brush'" 
-              :class="['flex-1 flex flex-col items-center py-1 transition', currentTab === 'brush' ? 'text-sky-600 font-bold' : 'text-slate-400 font-medium']">
-        <span class="text-2xl leading-none">🪥</span>
-        <span class="text-[11px] mt-1">Чистка</span>
+              :class="['flex-1 flex flex-col items-center py-1.5 transition text-xs font-semibold', 
+                       currentTab === 'brush' ? 'polaris-tab-active' : 'text-slate-500']">
+        <span class="text-xl leading-none">🪥</span>
+        <span class="text-[10px] mt-0.5">Чистка</span>
       </button>
 
       <!-- Вкладка Зубки -->
       <button @click="currentTab = 'teeth'" 
-              :class="['flex-1 flex flex-col items-center py-1 transition relative', currentTab === 'teeth' ? 'text-sky-600 font-bold' : 'text-slate-400 font-medium']">
-        <span class="text-2xl leading-none">🦷</span>
-        <span class="text-[11px] mt-1">Зубки</span>
-        <span v-if="teethStats.erupted > 0" class="absolute top-0 right-1/4 bg-sky-500 text-white text-[9px] font-bold px-1.5 rounded-full">
+              :class="['flex-1 flex flex-col items-center py-1.5 transition text-xs font-semibold relative', 
+                       currentTab === 'teeth' ? 'polaris-tab-active' : 'text-slate-500']">
+        <span class="text-xl leading-none">🦷</span>
+        <span class="text-[10px] mt-0.5">Зубки</span>
+        <span v-if="teethStats.erupted > 0" class="absolute top-1 right-3 bg-emerald-500 text-white text-[9px] font-bold px-1.5 rounded-full">
           {{ teethStats.erupted }}
         </span>
       </button>
 
       <!-- Вкладка История -->
       <button @click="currentTab = 'history'" 
-              :class="['flex-1 flex flex-col items-center py-1 transition', currentTab === 'history' ? 'text-sky-600 font-bold' : 'text-slate-400 font-medium']">
-        <span class="text-2xl leading-none">📊</span>
-        <span class="text-[11px] mt-1">История</span>
+              :class="['flex-1 flex flex-col items-center py-1.5 transition text-xs font-semibold', 
+                       currentTab === 'history' ? 'polaris-tab-active' : 'text-slate-500']">
+        <span class="text-xl leading-none">📊</span>
+        <span class="text-[10px] mt-0.5">История</span>
       </button>
     </nav>
 
     <!-- ========================================== -->
-    <!-- МОДАЛЬНОЕ ОКНО ЧИСТКИ (ПОДТВЕРЖДЕНИЕ)     -->
+    <!-- ШТОРКА ЗУБИКА (BOTTOM SHEET НА IPHONE)     -->
     <!-- ========================================== -->
+    <div :class="['fixed inset-0 z-50 flex items-end justify-center backdrop', activeToothModal ? 'open bg-black/40 backdrop-blur-sm' : 'closed']"
+         @click.self="closeToothModal">
+      <div :class="['bg-white w-full max-w-md rounded-t-[32px] p-5 pb-8 safe-bottom space-y-4 bottom-sheet', activeToothModal ? 'open' : 'closed']">
+        <div class="w-12 h-1.5 bg-slate-200 rounded-full mx-auto mb-1"></div>
+
+        <div v-if="activeToothModal" class="space-y-4">
+          <!-- Заголовок зуба -->
+          <div class="flex items-start justify-between">
+            <div>
+              <div class="flex items-center space-x-2">
+                <span class="text-2xl">🦷</span>
+                <h3 class="font-bold text-slate-900 text-base leading-tight">{{ activeToothModal.fullName }}</h3>
+              </div>
+              <p class="text-xs text-indigo-600 font-medium mt-0.5">Обычно прорезывается: <b>{{ activeToothModal.normalAge }}</b></p>
+            </div>
+            <button @click="closeToothModal" class="w-8 h-8 rounded-full bg-slate-100 flex items-center justify-center text-slate-400">
+              ✕
+            </button>
+          </div>
+
+          <!-- ВЫБОР СТАТУСА (4 КНОПКИ) -->
+          <div>
+            <label class="block text-xs font-semibold text-slate-500 mb-1.5">Статус зубика:</label>
+            <div class="grid grid-cols-2 gap-2">
+              <button @click="setToothFormStatus('none')"
+                      :class="['p-3 rounded-2xl border text-xs font-semibold flex items-center space-x-2 transition',
+                               toothForm.status === 'none' ? 'border-slate-400 bg-slate-100 text-slate-900 shadow-sm' : 'border-slate-200 text-slate-400 bg-white']">
+                <span class="text-base">⚪</span>
+                <span>Еще нет</span>
+              </button>
+
+              <button @click="setToothFormStatus('erupting')"
+                      :class="['p-3 rounded-2xl border text-xs font-semibold flex items-center space-x-2 transition',
+                               toothForm.status === 'erupting' ? 'border-amber-400 bg-amber-50 text-amber-900 shadow-sm font-bold' : 'border-slate-200 text-slate-400 bg-white']">
+                <span class="text-base">🟡</span>
+                <span>Режется</span>
+              </button>
+
+              <button @click="setToothFormStatus('erupted')"
+                      :class="['p-3 rounded-2xl border text-xs font-semibold flex items-center space-x-2 transition',
+                               toothForm.status === 'erupted' && !toothForm.dateUnknown ? 'border-emerald-400 bg-emerald-50 text-emerald-900 shadow-sm font-bold' : 'border-slate-200 text-slate-400 bg-white']">
+                <span class="text-base">🟢</span>
+                <span>Вылез недавно</span>
+              </button>
+
+              <!-- НОВАЯ КНОПКА: ВЫЛЕЗ РАНЕЕ -->
+              <button @click="setToothFormStatus('erupted_earlier')"
+                      :class="['p-3 rounded-2xl border text-xs font-semibold flex items-center space-x-2 transition',
+                               toothForm.status === 'erupted_earlier' || toothForm.dateUnknown ? 'border-violet-500 bg-violet-50 text-violet-900 shadow-sm font-bold' : 'border-slate-200 text-slate-400 bg-white']">
+                <span class="text-base">✨</span>
+                <span>Вылез ранее (не помню)</span>
+              </button>
+            </div>
+          </div>
+
+          <!-- ЕСЛИ ВЫЛЕЗ РАНЕЕ: ПОНЯТНАЯ ПЛАШКА ВМЕСТО КАЛЕНДАРЯ -->
+          <div v-if="toothForm.status === 'erupted_earlier'" class="p-3 bg-violet-50 border border-violet-100 rounded-2xl text-xs text-violet-800 flex items-center space-x-2">
+            <span class="text-lg">📅</span>
+            <span>Точная дата не фиксируется. Зубик будет сохранен как уже имеющийся у малыша!</span>
+          </div>
+
+          <!-- ЕСЛИ ВЫЛЕЗ НЕДАВНО ИЛИ РЕЖЕТСЯ: ВЫБОР ТОЧНОЙ ДАТЫ -->
+          <div v-show="toothForm.status === 'erupted' || toothForm.status === 'erupting'">
+            <div class="flex items-center justify-between mb-1">
+              <label class="text-xs font-semibold text-slate-600">Дата появления:</label>
+              <div class="space-x-1 text-xs">
+                <button @click="setTodayDate" class="text-indigo-600 bg-indigo-50 px-2 py-0.5 rounded-md font-medium">Сегодня</button>
+                <button @click="setYesterdayDate" class="text-slate-600 bg-slate-100 px-2 py-0.5 rounded-md font-medium">Вчера</button>
+              </div>
+            </div>
+            <input type="date" v-model="toothForm.date" 
+                   class="w-full bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 text-sm focus:outline-none focus:border-indigo-500">
+          </div>
+
+          <!-- Симптомы прорезывания -->
+          <div v-show="toothForm.status !== 'none'">
+            <label class="block text-xs font-semibold text-slate-600 mb-1.5">Симптомы и поведение:</label>
+            <div class="flex flex-wrap gap-1.5">
+              <button v-for="sym in symptomsList" :key="sym.id"
+                      @click="toggleSymptom(sym.id)"
+                      :class="['px-2.5 py-1.5 rounded-xl text-xs font-medium border flex items-center space-x-1 transition',
+                               toothForm.symptoms.includes(sym.id) ? 'bg-amber-100 border-amber-300 text-amber-900 font-semibold' : 'bg-slate-50 border-slate-200 text-slate-600']">
+                <span>{{ sym.icon }}</span>
+                <span>{{ sym.label }}</span>
+              </button>
+            </div>
+          </div>
+
+          <!-- Заметки -->
+          <div>
+            <label class="block text-xs font-semibold text-slate-600 mb-1">Заметка родителя:</label>
+            <textarea v-model="toothForm.notes" rows="2" placeholder="Например: заметили ложечкой при кормлении"
+                      class="w-full bg-slate-50 border border-slate-200 rounded-xl p-2.5 text-xs focus:outline-none focus:border-indigo-500"></textarea>
+          </div>
+
+          <!-- Кнопки сохранения -->
+          <div class="flex space-x-2 pt-1">
+            <button v-if="toothForm.status !== 'none'" @click="resetToothStatus" class="px-3 py-3 rounded-2xl border border-rose-200 text-rose-600 text-xs font-semibold">
+              Сброс
+            </button>
+            <button @click="saveToothModal" class="flex-1 polaris-btn-action text-white py-3.5 rounded-2xl font-bold text-sm shadow-md">
+              Сохранить зубик ✓
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ========================================== -->
+    <!-- ШТОРКА ПАКЕТНОЙ ОТМЕТКИ СТАРЫХ ЗУБОК       -->
+    <!-- ========================================== -->
+    <div :class="['fixed inset-0 z-50 flex items-end justify-center backdrop', showBulkEarlierModal ? 'open bg-black/40 backdrop-blur-sm' : 'closed']"
+         @click.self="showBulkEarlierModal = false">
+      <div :class="['bg-white w-full max-w-md rounded-t-[32px] p-5 pb-8 safe-bottom space-y-4 bottom-sheet', showBulkEarlierModal ? 'open' : 'closed']">
+        <div class="w-12 h-1.5 bg-slate-200 rounded-full mx-auto mb-1"></div>
+
+        <div class="flex items-start justify-between">
+          <div>
+            <h3 class="font-bold text-slate-900 text-base leading-tight">Какие зубки уже выросли?</h3>
+            <p class="text-xs text-slate-400 mt-0.5">Выберите имеющиеся зубки (без необходимости вводить дату)</p>
+          </div>
+          <button @click="showBulkEarlierModal = false" class="w-8 h-8 rounded-full bg-slate-100 flex items-center justify-center text-slate-400">
+            ✕
+          </button>
+        </div>
+
+        <!-- Сетка 20 зубок для быстрого выбора -->
+        <div class="space-y-3 max-h-72 overflow-y-auto no-scrollbar">
+          <div>
+            <span class="text-[11px] font-bold text-slate-400 uppercase tracking-wider block mb-1">Верхняя челюсть</span>
+            <div class="grid grid-cols-2 gap-1.5">
+              <button v-for="t in upperTeeth" :key="t.id"
+                      @click="toggleBulkTooth(t.id)"
+                      :class="['p-2 rounded-xl border text-left text-xs flex items-center justify-between transition',
+                               bulkSelectedTeeth.includes(t.id) ? 'bg-violet-50 border-violet-400 text-violet-900 font-bold' : 'bg-slate-50 border-slate-200 text-slate-600']">
+                <span>{{ t.name }} ({{ t.id }})</span>
+                <span v-if="bulkSelectedTeeth.includes(t.id)">✓</span>
+              </button>
+            </div>
+          </div>
+
+          <div>
+            <span class="text-[11px] font-bold text-slate-400 uppercase tracking-wider block mb-1">Нижняя челюсть</span>
+            <div class="grid grid-cols-2 gap-1.5">
+              <button v-for="t in lowerTeeth" :key="t.id"
+                      @click="toggleBulkTooth(t.id)"
+                      :class="['p-2 rounded-xl border text-left text-xs flex items-center justify-between transition',
+                               bulkSelectedTeeth.includes(t.id) ? 'bg-violet-50 border-violet-400 text-violet-900 font-bold' : 'bg-slate-50 border-slate-200 text-slate-600']">
+                <span>{{ t.name }} ({{ t.id }})</span>
+                <span v-if="bulkSelectedTeeth.includes(t.id)">✓</span>
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <div class="pt-2 flex space-x-2">
+          <button @click="showBulkEarlierModal = false" class="flex-1 py-3 rounded-2xl border border-slate-200 text-slate-600 font-semibold text-xs">
+            Отмена
+          </button>
+          <button @click="confirmBulkEarlier" class="flex-1 polaris-btn-action text-white py-3 rounded-2xl font-bold text-xs shadow-md">
+            Сохранить ({{ bulkSelectedTeeth.length }}) ✓
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- МОДАЛЬНОЕ ОКНО ЧИСТКИ (ПОДТВЕРЖДЕНИЕ) -->
     <div v-if="showBrushConfirmModal" class="fixed inset-0 z-50 flex items-end justify-center bg-black/40 backdrop-blur-sm">
-      <div class="bg-white w-full max-w-md rounded-t-3xl p-5 pb-8 safe-bottom space-y-4 animate-slide-up">
+      <div class="bg-white w-full max-w-md rounded-t-[32px] p-5 pb-8 safe-bottom space-y-4 animate-slide-up">
         <div class="w-12 h-1.5 bg-slate-200 rounded-full mx-auto mb-1"></div>
         
         <div class="text-center">
@@ -555,121 +767,24 @@
 
         <div>
           <label class="block text-xs font-semibold text-slate-600 mb-1">Заметка (необязательно):</label>
-          <input type="text" v-model="brushNoteInput" placeholder="Например: с пастой со вкусом банана"
-                 class="w-full bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 text-sm focus:outline-none focus:border-sky-500">
+          <input type="text" v-model="brushNoteInput" placeholder="Например: с банановой пастой"
+                 class="w-full bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 text-sm focus:outline-none focus:border-indigo-500">
         </div>
 
         <div class="flex space-x-2 pt-2">
-          <button @click="showBrushConfirmModal = false" class="flex-1 py-3 rounded-xl border border-slate-200 text-slate-600 font-semibold text-sm">
+          <button @click="showBrushConfirmModal = false" class="flex-1 py-3 rounded-2xl border border-slate-200 text-slate-600 font-semibold text-sm">
             Отмена
           </button>
-          <button @click="confirmAddBrushing" class="flex-1 ios-btn-primary text-white py-3 rounded-xl font-bold text-sm">
+          <button @click="confirmAddBrushing" class="flex-1 polaris-btn-action text-white py-3 rounded-2xl font-bold text-sm shadow-md">
             Сохранить ✓
           </button>
         </div>
       </div>
     </div>
 
-    <!-- ========================================== -->
-    <!-- ШТОРКА ЗУБИКА (BOTTOM SHEET НА IPHONE)     -->
-    <!-- ========================================== -->
-    <div :class="['fixed inset-0 z-50 flex items-end justify-center backdrop', activeToothModal ? 'open bg-black/40 backdrop-blur-sm' : 'closed']"
-         @click.self="closeToothModal">
-      <div :class="['bg-white w-full max-w-md rounded-t-3xl p-5 pb-8 safe-bottom space-y-4 bottom-sheet', activeToothModal ? 'open' : 'closed']">
-        <div class="w-12 h-1.5 bg-slate-200 rounded-full mx-auto mb-1"></div>
-
-        <div v-if="activeToothModal" class="space-y-4">
-          <!-- Заголовок зуба -->
-          <div class="flex items-start justify-between">
-            <div>
-              <div class="flex items-center space-x-2">
-                <span class="text-2xl">🦷</span>
-                <h3 class="font-bold text-slate-900 text-base leading-tight">{{ activeToothModal.fullName }}</h3>
-              </div>
-              <p class="text-xs text-sky-600 mt-0.5">Обычно прорезывается: <b>{{ activeToothModal.normalAge }}</b></p>
-            </div>
-            <button @click="closeToothModal" class="w-8 h-8 rounded-full bg-slate-100 flex items-center justify-center text-slate-400">
-              ✕
-            </button>
-          </div>
-
-          <!-- Выбор статуса (3 кнопки) -->
-          <div>
-            <label class="block text-xs font-semibold text-slate-500 mb-1.5">Статус зубика:</label>
-            <div class="grid grid-cols-3 gap-2">
-              <button @click="setToothFormStatus('none')"
-                      :class="['py-2.5 px-2 rounded-xl border text-xs font-semibold flex flex-col items-center justify-center space-y-1 transition',
-                               toothForm.status === 'none' ? 'border-slate-400 bg-slate-100 text-slate-800' : 'border-slate-200 text-slate-400']">
-                <span>⚪</span>
-                <span>Еще нет</span>
-              </button>
-              <button @click="setToothFormStatus('erupting')"
-                      :class="['py-2.5 px-2 rounded-xl border text-xs font-semibold flex flex-col items-center justify-center space-y-1 transition',
-                               toothForm.status === 'erupting' ? 'border-amber-400 bg-amber-50 text-amber-900 shadow-sm' : 'border-slate-200 text-slate-400']">
-                <span>🟡</span>
-                <span>Режется</span>
-              </button>
-              <button @click="setToothFormStatus('erupted')"
-                      :class="['py-2.5 px-2 rounded-xl border text-xs font-semibold flex flex-col items-center justify-center space-y-1 transition',
-                               toothForm.status === 'erupted' ? 'border-emerald-400 bg-emerald-50 text-emerald-900 shadow-sm' : 'border-slate-200 text-slate-400']">
-                <span>🟢</span>
-                <span>Вылез!</span>
-              </button>
-            </div>
-          </div>
-
-          <!-- Дата (только если режется или вылез) -->
-          <div v-show="toothForm.status !== 'none'">
-            <div class="flex items-center justify-between mb-1">
-              <label class="text-xs font-semibold text-slate-600">Дата появления:</label>
-              <div class="space-x-1 text-xs">
-                <button @click="setTodayDate" class="text-sky-600 bg-sky-50 px-2 py-0.5 rounded-md font-medium">Сегодня</button>
-                <button @click="setYesterdayDate" class="text-slate-600 bg-slate-100 px-2 py-0.5 rounded-md font-medium">Вчера</button>
-              </div>
-            </div>
-            <input type="date" v-model="toothForm.date" 
-                   class="w-full bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 text-sm focus:outline-none focus:border-sky-500">
-          </div>
-
-          <!-- Симптомы прорезывания -->
-          <div v-show="toothForm.status !== 'none'">
-            <label class="block text-xs font-semibold text-slate-600 mb-1.5">Симптомы и поведение:</label>
-            <div class="flex flex-wrap gap-1.5">
-              <button v-for="sym in symptomsList" :key="sym.id"
-                      @click="toggleSymptom(sym.id)"
-                      :class="['px-2.5 py-1.5 rounded-xl text-xs font-medium border flex items-center space-x-1 transition',
-                               toothForm.symptoms.includes(sym.id) ? 'bg-amber-100 border-amber-300 text-amber-900 font-semibold' : 'bg-slate-50 border-slate-200 text-slate-600']">
-                <span>{{ sym.icon }}</span>
-                <span>{{ sym.label }}</span>
-              </button>
-            </div>
-          </div>
-
-          <!-- Заметки -->
-          <div>
-            <label class="block text-xs font-semibold text-slate-600 mb-1">Заметка родителя:</label>
-            <textarea v-model="toothForm.notes" rows="2" placeholder="Например: заметили ложечкой при кормлении, капризничал перед сном"
-                      class="w-full bg-slate-50 border border-slate-200 rounded-xl p-2.5 text-xs focus:outline-none focus:border-sky-500"></textarea>
-          </div>
-
-          <!-- Кнопки сохранения -->
-          <div class="flex space-x-2 pt-1">
-            <button v-if="toothForm.status !== 'none'" @click="resetToothStatus" class="px-3 py-3 rounded-xl border border-rose-200 text-rose-600 text-xs font-semibold">
-              Сброс
-            </button>
-            <button @click="saveToothModal" class="flex-1 ios-btn-primary text-white py-3 rounded-xl font-bold text-sm">
-              Сохранить зубик ✓
-            </button>
-          </div>
-        </div>
-      </div>
-    </div>
-
-    <!-- ========================================== -->
-    <!-- МОДАЛЬНОЕ ОКНО НАСТРОЕК ПРОФИЛЯ            -->
-    <!-- ========================================== -->
+    <!-- МОДАЛЬНОЕ ОКНО НАСТРОЕК -->
     <div v-if="showSettingsModal" class="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-sm p-4">
-      <div class="bg-white w-full max-w-sm rounded-3xl p-5 space-y-4 shadow-2xl animate-scale-up">
+      <div class="bg-white w-full max-w-sm rounded-[32px] p-5 space-y-4 shadow-2xl">
         <div class="flex justify-between items-center">
           <h3 class="font-bold text-slate-900 text-base">Настройки приложения</h3>
           <button @click="showSettingsModal = false" class="text-slate-400 text-sm">✕</button>
@@ -677,7 +792,7 @@
 
         <div>
           <label class="block text-xs font-semibold text-slate-600 mb-1">Имя малыша:</label>
-          <input type="text" v-model="profileForm.babyName" placeholder="Например: Миша или Доченька"
+          <input type="text" v-model="profileForm.babyName" placeholder="Например: Миша"
                  class="w-full bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 text-sm">
         </div>
 
@@ -685,18 +800,17 @@
           <label class="block text-xs font-semibold text-slate-600 mb-1">Дата рождения малыша:</label>
           <input type="date" v-model="profileForm.birthDate"
                  class="w-full bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 text-sm">
-          <p class="text-[11px] text-slate-400 mt-1">Нужна, чтобы автоматически считать возраст при выходе каждого зубика.</p>
         </div>
 
         <div>
           <label class="block text-xs font-semibold text-slate-600 mb-1">Длительность таймера по умолчанию:</label>
           <div class="grid grid-cols-2 gap-2">
             <button @click="profileForm.timerDuration = 60"
-                    :class="['py-2 rounded-xl text-xs font-semibold border', profileForm.timerDuration === 60 ? 'bg-sky-50 border-sky-400 text-sky-800' : 'bg-slate-50 border-slate-200 text-slate-600']">
+                    :class="['py-2.5 rounded-xl text-xs font-semibold border', profileForm.timerDuration === 60 ? 'bg-indigo-50 border-indigo-500 text-indigo-900 font-bold' : 'bg-slate-50 border-slate-200 text-slate-600']">
               1 минута (60 с)
             </button>
             <button @click="profileForm.timerDuration = 120"
-                    :class="['py-2 rounded-xl text-xs font-semibold border', profileForm.timerDuration === 120 ? 'bg-sky-50 border-sky-400 text-sky-800' : 'bg-slate-50 border-slate-200 text-slate-600']">
+                    :class="['py-2.5 rounded-xl text-xs font-semibold border', profileForm.timerDuration === 120 ? 'bg-indigo-50 border-indigo-500 text-indigo-900 font-bold' : 'bg-slate-50 border-slate-200 text-slate-600']">
               2 минуты (120 с)
             </button>
           </div>
@@ -704,21 +818,21 @@
 
         <div class="flex items-center justify-between pt-1">
           <span class="text-xs font-semibold text-slate-700">Звуковые эффекты:</span>
-          <input type="checkbox" v-model="profileForm.soundEnabled" class="w-5 h-5 accent-sky-500">
+          <input type="checkbox" v-model="profileForm.soundEnabled" class="w-5 h-5 accent-indigo-600">
         </div>
 
         <div class="pt-2 flex space-x-2">
           <button @click="showSettingsModal = false" class="flex-1 py-2.5 rounded-xl border border-slate-200 text-slate-600 text-xs font-semibold">
             Отмена
           </button>
-          <button @click="saveSettings" class="flex-1 bg-sky-500 hover:bg-sky-600 text-white py-2.5 rounded-xl font-bold text-xs shadow-sm">
+          <button @click="saveSettings" class="flex-1 bg-slate-900 text-white py-2.5 rounded-xl font-bold text-xs shadow-sm">
             Сохранить
           </button>
         </div>
       </div>
     </div>
 
-    <!-- ВСПЛЫВАЮЩИЙ ТОСТ (УВЕДОМЛЕНИЕ) -->
+    <!-- ТОСТ УВЕДОМЛЕНИЕ -->
     <div v-if="toast.show" 
          class="fixed top-16 left-1/2 transform -translate-x-1/2 z-50 bg-slate-900/90 backdrop-blur-md text-white text-xs font-medium px-4 py-2.5 rounded-full shadow-lg flex items-center space-x-2 animate-bounce-subtle pointer-events-none">
       <span>{{ toast.message }}</span>
@@ -726,7 +840,6 @@
 
   </div>
 
-  <!-- Скрипты приложения -->
   <script src="js/teeth-data.js"></script>
   <script src="js/audio.js"></script>
   <script src="js/storage.js"></script>

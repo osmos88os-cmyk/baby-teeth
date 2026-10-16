@@ -1,16 +1,19 @@
-// Главное приложение Vue 3
+// Главное приложение Vue 3 в стилистике Polaris Mobile App
 const { createApp, ref, computed, onMounted, onUnmounted, watch } = Vue;
 
 const app = createApp({
   setup() {
-    // Вкладки
-    const currentTab = ref('brush'); // 'brush' | 'teeth' | 'history'
+    // Вкладки: 'brush' | 'teeth' | 'history'
+    const currentTab = ref('brush');
     
     // Данные из хранилища
     const profile = ref({ ...appStorage.data.profile });
     const teethData = ref({ ...appStorage.data.teeth });
     const brushings = ref([...appStorage.data.brushings]);
     
+    // Видимость номеров зубок (по умолчанию скрыты для чистоты схемы, включаются переключателем)
+    const showToothNumbers = ref(profile.value.showToothNumbers || false);
+
     // Полноэкранный / PWA баннер
     const isStandalone = ref(window.navigator.standalone || window.matchMedia('(display-mode: standalone)').matches);
     const showPwaBanner = ref(!isStandalone.value && !localStorage.getItem('pwa_banner_dismissed'));
@@ -27,11 +30,16 @@ const app = createApp({
     // --- МОДАЛЬНОЕ ОКНО ЗУБИКА (BOTTOM SHEET) ---
     const activeToothModal = ref(null);
     const toothForm = ref({
-      status: 'none',
+      status: 'none', // 'none' | 'erupting' | 'erupted' | 'erupted_earlier'
       date: '',
+      dateUnknown: false,
       notes: '',
       symptoms: []
     });
+
+    // Режим пакетной отметки старых зубок
+    const showBulkEarlierModal = ref(false);
+    const bulkSelectedTeeth = ref([]);
 
     // Вид в разделе "Зубки": 'jaw' (схема) или 'list' (список)
     const teethViewMode = ref('jaw');
@@ -60,42 +68,16 @@ const app = createApp({
     const lowerTeeth = computed(() => BABY_TEETH.filter(t => t.jaw === 'lower'));
 
     const teethStats = computed(() => {
-      let erupted = 0;
-      let erupting = 0;
-      Object.values(teethData.value).forEach(t => {
-        if (t.status === 'erupted') erupted++;
-        else if (t.status === 'erupting') erupting++;
-      });
-      return {
-        erupted,
-        erupting,
-        none: 20 - erupted - erupting,
-        total: 20,
-        percent: Math.round((erupted / 20) * 100)
-      };
+      return appStorage.getTeethStats();
     });
 
     const eruptedList = computed(() => {
-      const list = [];
-      Object.keys(teethData.value).forEach(id => {
-        const t = teethData.value[id];
-        if (t.status === 'erupted' || t.status === 'erupting') {
-          const info = BABY_TEETH.find(item => item.id === id);
-          list.push({
-            id,
-            ...t,
-            info,
-            ageText: profile.value.birthDate && t.date 
-              ? appStorage.formatAgeAtDate(profile.value.birthDate, t.date)
-              : ''
-          });
-        }
-      });
-      list.sort((a, b) => {
-        if (a.date && b.date) return new Date(b.date) - new Date(a.date);
-        return (b.updatedAt || 0) - (a.updatedAt || 0);
-      });
-      return list;
+      return appStorage.getEruptedHistory().map(item => ({
+        ...item,
+        ageText: profile.value.birthDate && item.date && !item.isEarlier
+          ? appStorage.formatAgeAtDate(profile.value.birthDate, item.date)
+          : ''
+      }));
     });
 
     // Последняя чистка
@@ -131,9 +113,8 @@ const app = createApp({
     const weekDays = computed(() => {
       const days = [];
       const now = new Date();
-      const currentDay = now.getDay(); // 0 - воскресенье, 1 - понедельник
+      const currentDay = now.getDay();
       const mondayOffset = (currentDay === 0 ? -6 : 1) - currentDay;
-      
       const dayNames = ['Пн', 'Вт', 'Ср', 'Чт', 'Пт', 'Сб', 'Вс'];
       
       for (let i = 0; i < 7; i++) {
@@ -193,6 +174,13 @@ const app = createApp({
     const getSymptomLabel = (symId) => {
       const s = TOOTH_SYMPTOMS.find(item => item.id === symId);
       return s ? `${s.icon} ${s.label}` : symId;
+    };
+
+    // Переключение видимости номеров зубок
+    const toggleToothNumbers = () => {
+      showToothNumbers.value = !showToothNumbers.value;
+      appStorage.updateProfile({ showToothNumbers: showToothNumbers.value });
+      soundFX.playPop();
     };
 
     // --- МЕТОДЫ ЧИСТКИ ---
@@ -259,14 +247,9 @@ const app = createApp({
       soundFX.playFanfare();
 
       if (window.confetti) {
-        window.confetti({
-          particleCount: 100,
-          spread: 80,
-          origin: { y: 0.6 }
-        });
+        window.confetti({ particleCount: 100, spread: 80, origin: { y: 0.6 } });
       }
 
-      // Предлагаем сразу зафиксировать чистку
       setTimeout(() => {
         pendingBrushType.value = new Date().getHours() < 14 ? 'morning' : 'evening';
         brushNoteInput.value = `Таймер ${initialTimerSeconds.value} сек`;
@@ -276,7 +259,7 @@ const app = createApp({
 
     // --- УПРАВЛЕНИЕ ЗУБКАМИ ---
     const getToothState = (id) => {
-      return teethData.value[id] || { status: 'none', date: '', notes: '', symptoms: [] };
+      return teethData.value[id] || { status: 'none', date: '', dateUnknown: false, notes: '', symptoms: [] };
     };
 
     const openToothModal = (tooth) => {
@@ -285,7 +268,8 @@ const app = createApp({
       const current = getToothState(tooth.id);
       toothForm.value = {
         status: current.status || 'none',
-        date: current.date || new Date().toISOString().split('T')[0],
+        date: current.date || (current.status === 'erupted_earlier' ? '' : new Date().toISOString().split('T')[0]),
+        dateUnknown: !!(current.status === 'erupted_earlier' || current.dateUnknown),
         notes: current.notes || '',
         symptoms: Array.isArray(current.symptoms) ? [...current.symptoms] : []
       };
@@ -297,14 +281,26 @@ const app = createApp({
 
     const setToothFormStatus = (status) => {
       toothForm.value.status = status;
-      if (status !== 'none' && !toothForm.value.date) {
-        toothForm.value.date = new Date().toISOString().split('T')[0];
+      if (status === 'erupted_earlier') {
+        toothForm.value.date = '';
+        toothForm.value.dateUnknown = true;
+      } else if (status === 'erupted') {
+        toothForm.value.dateUnknown = false;
+        if (!toothForm.value.date) {
+          toothForm.value.date = new Date().toISOString().split('T')[0];
+        }
+      } else if (status === 'erupting') {
+        toothForm.value.dateUnknown = false;
+        if (!toothForm.value.date) {
+          toothForm.value.date = new Date().toISOString().split('T')[0];
+        }
       }
       soundFX.playPop();
     };
 
     const setTodayDate = () => {
       toothForm.value.date = new Date().toISOString().split('T')[0];
+      toothForm.value.dateUnknown = false;
       soundFX.playPop();
     };
 
@@ -312,6 +308,7 @@ const app = createApp({
       const d = new Date();
       d.setDate(d.getDate() - 1);
       toothForm.value.date = d.toISOString().split('T')[0];
+      toothForm.value.dateUnknown = false;
       soundFX.playPop();
     };
 
@@ -330,9 +327,9 @@ const app = createApp({
       appStorage.setTooth(activeToothModal.value.id, toothForm.value);
       teethData.value = { ...appStorage.data.teeth };
       soundFX.playSuccess();
-      showToast(`Зубик "${activeToothModal.value.name}" обновлен! 🦷`, 'success');
+      showToast(`Зубик "${activeToothModal.value.name}" сохранен! 🦷`, 'success');
 
-      if (toothForm.value.status === 'erupted' && window.confetti) {
+      if ((toothForm.value.status === 'erupted' || toothForm.value.status === 'erupted_earlier') && window.confetti) {
         window.confetti({ particleCount: 50, spread: 70, origin: { y: 0.7 } });
       }
       closeToothModal();
@@ -345,6 +342,39 @@ const app = createApp({
         teethData.value = { ...appStorage.data.teeth };
         showToast('Отметка сброшена', 'info');
         closeToothModal();
+      }
+    };
+
+    // --- ПАКЕТНАЯ ОТМЕТКА ЗУБОК (ВЫЛЕЗЛИ РАНЕЕ) ---
+    const openBulkEarlierModal = () => {
+      soundFX.playPop();
+      // Выбираем зубки, которые уже имеют статус вылезших ранее или вообще все вылезшие
+      bulkSelectedTeeth.value = Object.keys(teethData.value).filter(id => {
+        const s = teethData.value[id]?.status;
+        return s === 'erupted' || s === 'erupted_earlier';
+      });
+      showBulkEarlierModal.value = true;
+    };
+
+    const toggleBulkTooth = (id) => {
+      soundFX.playPop();
+      const idx = bulkSelectedTeeth.value.indexOf(id);
+      if (idx > -1) {
+        bulkSelectedTeeth.value.splice(idx, 1);
+      } else {
+        bulkSelectedTeeth.value.push(id);
+      }
+    };
+
+    const confirmBulkEarlier = () => {
+      appStorage.batchSetEruptedEarlier(bulkSelectedTeeth.value);
+      teethData.value = { ...appStorage.data.teeth };
+      soundFX.playSuccess();
+      showBulkEarlierModal.value = false;
+      showToast(`Отмечено ${bulkSelectedTeeth.value.length} зубиков как выросшие ранее! ✨`, 'success');
+      
+      if (window.confetti) {
+        window.confetti({ particleCount: 70, spread: 80, origin: { y: 0.7 } });
       }
     };
 
@@ -371,7 +401,6 @@ const app = createApp({
       showToast(soundFX.enabled ? 'Звук включен 🔔' : 'Звук выключен 🔕', 'info');
     };
 
-    // Резервная копия
     const downloadBackup = () => {
       const json = appStorage.exportJSON();
       const blob = new Blob([json], { type: 'application/json' });
@@ -388,7 +417,7 @@ const app = createApp({
       const json = appStorage.exportJSON();
       if (navigator.clipboard) {
         navigator.clipboard.writeText(json).then(() => {
-          showToast('Данные скопированы в буфер! Можно отправить в мессенджер 📋', 'success');
+          showToast('Данные скопированы в буфер! 📋', 'success');
         });
       } else {
         showToast('Буфер недоступен', 'error');
@@ -445,7 +474,6 @@ const app = createApp({
 
     onMounted(() => {
       soundFX.enabled = profile.value.soundEnabled;
-      // Регистрация Service Worker
       if ('serviceWorker' in navigator) {
         navigator.serviceWorker.register('./sw.js').catch(err => {
           console.warn('SW register error', err);
@@ -475,6 +503,8 @@ const app = createApp({
       hasEveningBrush,
       streakDays,
       weekDays,
+      showToothNumbers,
+      toggleToothNumbers,
       // PWA banner
       showPwaBanner,
       dismissPwaBanner,
@@ -507,6 +537,12 @@ const app = createApp({
       toggleSymptom,
       saveToothModal,
       resetToothStatus,
+      // Пакетная отметка
+      showBulkEarlierModal,
+      bulkSelectedTeeth,
+      openBulkEarlierModal,
+      toggleBulkTooth,
+      confirmBulkEarlier,
       // Настройки
       showSettingsModal,
       profileForm,
@@ -520,7 +556,7 @@ const app = createApp({
       clearAllData,
       // Toast
       toast,
-      // Форматирование и локализация
+      // Форматирование
       todayFormatted,
       streakText,
       formatTimestamp,

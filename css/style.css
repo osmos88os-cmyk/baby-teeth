@@ -1,80 +1,157 @@
-/* Стилизация мобильного веб-приложения под iPhone iOS */
+/* Стилизация приложения в стиле концепта Polaris Mobile App (Behance) */
 
 :root {
   --safe-top: env(safe-area-inset-top, 0px);
   --safe-bottom: env(safe-area-inset-bottom, 0px);
-  --primary: #0ea5e9;
-  --primary-light: #e0f2fe;
-  --success: #10b981;
-  --warning: #f59e0b;
-  --bg-app: #f8fafc;
+  --polaris-canvas: #f8fafc;
+  --polaris-dark: #0f172a;
+  --polaris-indigo: #1e1b4b;
+  --polaris-royal: #4338ca;
+  --polaris-mint: #10b981;
+  --polaris-amber: #f59e0b;
+  --polaris-lavender: #8b5cf6;
 }
 
-/* Базовые настройки для эффекта нативного приложения на iOS */
 html, body {
   margin: 0;
   padding: 0;
   width: 100%;
   height: 100%;
-  background-color: var(--bg-app);
-  font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", "SF Pro Display", "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+  background-color: var(--polaris-canvas);
+  font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", "SF Pro Display", "Inter", Roboto, sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   -webkit-tap-highlight-color: transparent;
   overscroll-behavior-y: none;
 }
 
-/* Предотвращение авто-зума полей ввода в Safari на iPhone */
 input, select, textarea, button {
   font-size: 16px !important;
   font-family: inherit;
 }
 
-/* Отступы под челку / Dynamic Island и нижнюю полосу жестов */
 .safe-top {
   padding-top: max(16px, var(--safe-top));
 }
 
 .safe-bottom {
-  padding-bottom: max(16px, var(--safe-bottom));
+  padding-bottom: max(20px, var(--safe-bottom));
 }
 
-.tab-bar-safe {
-  padding-bottom: max(12px, var(--safe-bottom));
+/* Карточки в стиле Polaris */
+.polaris-card {
+  background: #ffffff;
+  border-radius: 28px;
+  border: 1px solid rgba(226, 232, 240, 0.85);
+  box-shadow: 0 12px 32px -4px rgba(15, 23, 42, 0.05), 0 4px 12px -2px rgba(15, 23, 42, 0.02);
+  transition: transform 0.15s ease, box-shadow 0.15s ease;
 }
 
-/* Карточки зубиков на схеме челюсти */
-.tooth-card {
+/* Главная Hero-карточка чистки (Deep Slate & Royal Indigo) */
+.polaris-hero {
+  background: linear-gradient(135deg, #0f172a 0%, #1e1b4b 60%, #312e81 100%);
+  border-radius: 30px;
+  box-shadow: 0 16px 36px -6px rgba(15, 23, 42, 0.35), 0 6px 16px -2px rgba(49, 46, 129, 0.25);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  position: relative;
+  overflow: hidden;
+}
+
+.polaris-hero::before {
+  content: '';
+  position: absolute;
+  top: -30%;
+  right: -20%;
+  width: 200px;
+  height: 200px;
+  background: radial-gradient(circle, rgba(99, 102, 241, 0.25) 0%, transparent 70%);
+  border-radius: 50%;
+  pointer-events: none;
+}
+
+/* Пульсирующая статусная точка */
+.status-dot-pulse {
+  position: relative;
+}
+.status-dot-pulse::after {
+  content: '';
+  position: absolute;
+  inset: -3px;
+  border-radius: 9999px;
+  background: inherit;
+  opacity: 0.5;
+  animation: pulse-ring 2s cubic-bezier(0.24, 0, 0.38, 1) infinite;
+}
+
+@keyframes pulse-ring {
+  0% { transform: scale(0.9); opacity: 0.7; }
+  70% { transform: scale(2.2); opacity: 0; }
+  100% { transform: scale(2.4); opacity: 0; }
+}
+
+/* Кнопка действия Polaris с градиентом и свечением */
+.polaris-btn-action {
+  background: linear-gradient(135deg, #2563eb 0%, #38bdf8 100%);
+  box-shadow: 0 8px 24px -2px rgba(37, 99, 235, 0.35);
   transition: all 0.2s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+.polaris-btn-action:active {
+  transform: scale(0.97);
+  box-shadow: 0 4px 12px -1px rgba(37, 99, 235, 0.25);
+}
+
+/* Парящий таб-бар (Floating Pill Dock) */
+.polaris-floating-dock {
+  background: rgba(255, 255, 255, 0.88);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border: 1px solid rgba(255, 255, 255, 0.7);
+  box-shadow: 0 16px 36px -4px rgba(15, 23, 42, 0.12), 0 4px 14px -2px rgba(15, 23, 42, 0.05);
+  border-radius: 9999px;
+  transition: all 0.2s ease;
+}
+
+.polaris-tab-active {
+  background: #0f172a;
+  color: #ffffff;
+  border-radius: 9999px;
+  box-shadow: 0 4px 14px rgba(15, 23, 42, 0.25);
+}
+
+/* --- СТИЛИ ЗУБИКОВ НА СХЕМЕ ЧЕЛЮСТИ --- */
+.tooth-button {
+  transition: transform 0.2s cubic-bezier(0.34, 1.56, 0.64, 1), box-shadow 0.2s ease;
   -webkit-user-select: none;
   user-select: none;
 }
-
-.tooth-card:active {
-  transform: scale(0.92);
+.tooth-button:active {
+  transform: scale(0.88) !important;
 }
 
-/* Пульсация для зубок в статусе "Режется" */
-@keyframes eruptingPulse {
-  0% { box-shadow: 0 0 0 0 rgba(245, 158, 11, 0.4); }
-  70% { box-shadow: 0 0 0 8px rgba(245, 158, 11, 0); }
+/* Пульсация для зубок со статусом "Режется" */
+@keyframes eruptingGlow {
+  0% { box-shadow: 0 0 0 0 rgba(245, 158, 11, 0.5); }
+  70% { box-shadow: 0 0 0 10px rgba(245, 158, 11, 0); }
   100% { box-shadow: 0 0 0 0 rgba(245, 158, 11, 0); }
 }
-
-.tooth-erupting {
-  animation: eruptingPulse 2s infinite;
+.tooth-glow-amber {
+  animation: eruptingGlow 2s infinite ease-in-out;
 }
 
-/* Анимация всплывающей шторки (Bottom Sheet) */
+/* Внешние микро-бейджи номеров зубок */
+.tooth-number-tag {
+  transition: opacity 0.25s ease, transform 0.25s ease;
+  pointer-events: none;
+}
+
+/* Анимация шторки (Bottom Sheet) */
 .bottom-sheet {
-  transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.3s ease;
+  transition: transform 0.32s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.3s ease;
 }
-
 .bottom-sheet.closed {
   transform: translateY(100%);
   pointer-events: none;
 }
-
 .bottom-sheet.open {
   transform: translateY(0);
 }
@@ -82,51 +159,31 @@ input, select, textarea, button {
 .backdrop {
   transition: opacity 0.3s ease;
 }
-
 .backdrop.closed {
   opacity: 0;
   pointer-events: none;
 }
-
 .backdrop.open {
   opacity: 1;
 }
 
-/* Круговой прогресс для таймера */
+/* Круговой индикатор таймера Polaris */
 .progress-ring__circle {
   transition: stroke-dashoffset 0.35s;
   transform: rotate(-90deg);
   transform-origin: 50% 50%;
 }
 
-/* Мягкие тени карточек в стиле iOS */
-.ios-card {
-  box-shadow: 0 4px 20px -2px rgba(148, 163, 184, 0.12), 0 2px 6px -1px rgba(148, 163, 184, 0.08);
+/* Анимация щеточки */
+@keyframes brushFloat {
+  0%, 100% { transform: translateY(0) rotate(0deg); }
+  50% { transform: translateY(-6px) rotate(8deg); }
+}
+.animate-brush-float {
+  animation: brushFloat 1.2s infinite ease-in-out;
 }
 
-.ios-btn-primary {
-  background: linear-gradient(135deg, #0284c7 0%, #0ea5e9 100%);
-  box-shadow: 0 4px 14px 0 rgba(14, 165, 233, 0.35);
-  transition: all 0.15s ease;
-}
-
-.ios-btn-primary:active {
-  transform: scale(0.97);
-  box-shadow: 0 2px 8px 0 rgba(14, 165, 233, 0.25);
-}
-
-/* Анимация покачивания зубной щетки */
-@keyframes brushWiggle {
-  0%, 100% { transform: rotate(0deg) translateY(0); }
-  25% { transform: rotate(-10deg) translateY(-4px); }
-  75% { transform: rotate(10deg) translateY(4px); }
-}
-
-.animate-brush {
-  animation: brushWiggle 0.6s infinite ease-in-out;
-}
-
-/* Скрытие скроллбара, но сохранение скролла */
+/* Скрытие полосы прокрутки */
 .no-scrollbar::-webkit-scrollbar {
   display: none;
 }

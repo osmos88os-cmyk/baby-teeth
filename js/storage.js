@@ -13,10 +13,11 @@ class AppStorage {
         babyName: 'Малыш',
         birthDate: '',
         timerDuration: 60, // секунды (60 или 120)
-        soundEnabled: true
+        soundEnabled: true,
+        showToothNumbers: false // По умолчанию чистый вид без номеров
       },
       teeth: {
-        // id зубика -> { status: 'none'|'erupting'|'erupted', date: 'YYYY-MM-DD', notes: '', symptoms: [] }
+        // id зубика -> { status: 'none'|'erupting'|'erupted'|'erupted_earlier', date: 'YYYY-MM-DD'|'', dateUnknown: boolean, notes: '', symptoms: [] }
       },
       brushings: [
         // { id, timestamp, type: 'morning'|'evening'|'extra', duration, note }
@@ -60,18 +61,21 @@ class AppStorage {
     return this.data.teeth[id] || {
       status: 'none',
       date: '',
+      dateUnknown: false,
       notes: '',
       symptoms: []
     };
   }
 
   setTooth(id, toothData) {
-    if (toothData.status === 'none') {
+    if (!toothData || toothData.status === 'none') {
       delete this.data.teeth[id];
     } else {
+      const isEarlier = toothData.status === 'erupted_earlier' || toothData.dateUnknown;
       this.data.teeth[id] = {
-        status: toothData.status,
-        date: toothData.date || new Date().toISOString().split('T')[0],
+        status: isEarlier ? 'erupted_earlier' : toothData.status,
+        date: isEarlier ? '' : (toothData.date || new Date().toISOString().split('T')[0]),
+        dateUnknown: !!isEarlier,
         notes: toothData.notes || '',
         symptoms: toothData.symptoms || [],
         updatedAt: Date.now()
@@ -80,41 +84,66 @@ class AppStorage {
     this.save();
   }
 
+  // Пакетная отметка зубок как «Вылезли ранее»
+  batchSetEruptedEarlier(toothIds) {
+    if (!Array.isArray(toothIds)) return;
+    toothIds.forEach(id => {
+      this.data.teeth[id] = {
+        status: 'erupted_earlier',
+        date: '',
+        dateUnknown: true,
+        notes: this.data.teeth[id]?.notes || '',
+        symptoms: this.data.teeth[id]?.symptoms || [],
+        updatedAt: Date.now()
+      };
+    });
+    this.save();
+  }
+
   getTeethStats() {
     let erupted = 0;
     let erupting = 0;
     Object.values(this.data.teeth).forEach(t => {
-      if (t.status === 'erupted') erupted++;
-      else if (t.status === 'erupting') erupting++;
+      if (t.status === 'erupted' || t.status === 'erupted_earlier') {
+        erupted++;
+      } else if (t.status === 'erupting') {
+        erupting++;
+      }
     });
     return {
       erupted,
       erupting,
-      none: 20 - erupted - erupting,
+      none: Math.max(0, 20 - erupted - erupting),
       total: 20,
-      percent: Math.round((erupted / 20) * 100)
+      percent: Math.min(100, Math.round((erupted / 20) * 100))
     };
   }
 
-  // Список всех зубок с их статусами, отсортированных по дате появления
+  // Список всех зубок для хронологии
   getEruptedHistory() {
     const list = [];
     Object.keys(this.data.teeth).forEach(id => {
       const t = this.data.teeth[id];
-      if (t.status === 'erupted' || t.status === 'erupting') {
+      if (t.status === 'erupted' || t.status === 'erupted_earlier' || t.status === 'erupting') {
         const info = (typeof BABY_TEETH !== 'undefined') 
           ? BABY_TEETH.find(item => item.id === id) 
           : null;
         list.push({
           id,
           ...t,
-          info
+          info,
+          isEarlier: t.status === 'erupted_earlier' || t.dateUnknown
         });
       }
     });
 
-    // Сортировка: сначала самые новые даты
+    // Сортировка: сначала свежие с датами, затем «вылезшие ранее» (по анатомическому порядку)
     list.sort((a, b) => {
+      if (a.isEarlier && !b.isEarlier) return 1;
+      if (!a.isEarlier && b.isEarlier) return -1;
+      if (a.isEarlier && b.isEarlier) {
+        return (a.info?.order || 0) - (b.info?.order || 0);
+      }
       if (a.date && b.date) {
         return new Date(b.date) - new Date(a.date);
       }
@@ -126,8 +155,6 @@ class AppStorage {
   // --- Методы чистки зубок ---
   addBrushing(type = null, duration = null, note = '') {
     const now = new Date();
-    // Если тип не указан, определяем по текущему времени:
-    // до 14:00 - morning, после 17:00 - evening, иначе extra
     if (!type) {
       const hour = now.getHours();
       if (hour < 14) type = 'morning';
@@ -144,7 +171,6 @@ class AppStorage {
     };
 
     this.data.brushings.unshift(item);
-    // Храним последние 500 записей
     if (this.data.brushings.length > 500) {
       this.data.brushings = this.data.brushings.slice(0, 500);
     }
@@ -162,23 +188,16 @@ class AppStorage {
     return this.data.brushings[0];
   }
 
-  // Проверка чисток на сегодня
   getTodayBrushings() {
     const todayStr = new Date().toISOString().split('T')[0];
     return this.data.brushings.filter(b => b.timestamp.startsWith(todayStr));
   }
 
-  // Расчет серии дней (streak)
   getStreakDays() {
     if (!this.data.brushings || this.data.brushings.length === 0) return 0;
-    
-    // Множество уникальных дат с чистками (YYYY-MM-DD)
     const dates = new Set(this.data.brushings.map(b => b.timestamp.split('T')[0]));
-    
     let streak = 0;
     const checkDate = new Date();
-    
-    // Проверяем: если сегодня еще не чистили, проверяем со вчерашнего дня
     const todayKey = checkDate.toISOString().split('T')[0];
     if (!dates.has(todayKey)) {
       checkDate.setDate(checkDate.getDate() - 1);
@@ -196,7 +215,6 @@ class AppStorage {
     return streak;
   }
 
-  // Форматирование относительного времени («3 часа назад», «Сегодня в 08:30»)
   formatRelativeTime(isoString) {
     if (!isoString) return 'Еще не чистили';
     const date = new Date(isoString);
@@ -205,32 +223,27 @@ class AppStorage {
     const diffSec = Math.floor(diffMs / 1000);
     const diffMin = Math.floor(diffSec / 60);
     const diffHours = Math.floor(diffMin / 60);
-    const diffDays = Math.floor(diffHours / 24);
 
     const timeStr = date.toLocaleTimeString('ru-RU', { hour: '2-digit', minute: '2-digit' });
 
     if (diffMin < 2) return 'Только что';
     if (diffMin < 60) return `${diffMin} ${this.declension(diffMin, ['минуту', 'минуты', 'минут'])} назад`;
     
-    // Если сегодня
     const isToday = now.toDateString() === date.toDateString();
     if (isToday) {
       return `Сегодня в ${timeStr} (${diffHours} ${this.declension(diffHours, ['час', 'часа', 'часов'])} назад)`;
     }
 
-    // Если вчера
     const yesterday = new Date(now);
     yesterday.setDate(now.getDate() - 1);
     if (yesterday.toDateString() === date.toDateString()) {
       return `Вчера в ${timeStr}`;
     }
 
-    // Раньше
     const dateFormatted = date.toLocaleDateString('ru-RU', { day: 'numeric', month: 'short' });
     return `${dateFormatted} в ${timeStr}`;
   }
 
-  // Склонение русских слов (минута, минуты, минут)
   declension(n, forms) {
     n = Math.abs(n) % 100;
     const n1 = n % 10;
@@ -240,12 +253,11 @@ class AppStorage {
     return forms[2];
   }
 
-  // Форматирование возраста ребенка на дату
   formatAgeAtDate(birthDateStr, targetDateStr) {
     if (!birthDateStr || !targetDateStr) return '';
     const birth = new Date(birthDateStr);
     const target = new Date(targetDateStr);
-    if (target < birth) return '';
+    if (isNaN(target.getTime()) || target < birth) return '';
 
     let months = (target.getFullYear() - birth.getFullYear()) * 12 + (target.getMonth() - birth.getMonth());
     if (target.getDate() < birth.getDate()) {
@@ -266,7 +278,6 @@ class AppStorage {
     return `в ${years} г. ${remMonths} мес.`;
   }
 
-  // --- Резервное копирование и экспорт ---
   exportJSON() {
     return JSON.stringify(this.data, null, 2);
   }
@@ -289,7 +300,6 @@ class AppStorage {
     return { success: false, error: 'Неверный формат данных' };
   }
 
-  // Демо-данные для наглядности (если пользователь захочет посмотреть пример)
   loadDemoData() {
     const today = new Date();
     const dStr = (offsetDays) => {
@@ -300,20 +310,19 @@ class AppStorage {
 
     this.data.profile = {
       babyName: 'Малыш',
-      birthDate: dStr(270), // ~9 месяцев
+      birthDate: dStr(270),
       timerDuration: 60,
-      soundEnabled: true
+      soundEnabled: true,
+      showToothNumbers: false
     };
 
-    // Пара вылезших резцов и один режется
     this.data.teeth = {
-      '81': { status: 'erupted', date: dStr(60), notes: 'Первый зубик! Увидели ложечкой', symptoms: ['drool', 'chewing'] },
-      '71': { status: 'erupted', date: dStr(45), notes: 'Рядом вылез второй нижний', symptoms: ['drool'] },
-      '51': { status: 'erupted', date: dStr(15), notes: 'Верхний правый резец показался', symptoms: ['fever', 'whiny', 'gel'] },
-      '61': { status: 'erupting', date: dStr(2), notes: 'Десна очень набухла, вот-вот выйдет', symptoms: ['whiny', 'drool', 'gel'] }
+      '81': { status: 'erupted_earlier', date: '', dateUnknown: true, notes: 'Вылез самым первым, заметили ложечкой', symptoms: ['drool'] },
+      '71': { status: 'erupted_earlier', date: '', dateUnknown: true, notes: 'Вылез следом', symptoms: ['drool'] },
+      '51': { status: 'erupted', date: dStr(12), notes: 'Верхний правый резец показался', symptoms: ['fever', 'whiny', 'gel'] },
+      '61': { status: 'erupting', date: dStr(2), notes: 'Десна очень набухла', symptoms: ['whiny', 'drool', 'gel'] }
     };
 
-    // Несколько чисток
     this.data.brushings = [
       { id: 'b_1', timestamp: new Date(Date.now() - 2.5 * 3600 * 1000).toISOString(), type: 'morning', duration: 60, note: '' },
       { id: 'b_2', timestamp: new Date(Date.now() - 22 * 3600 * 1000).toISOString(), type: 'evening', duration: 60, note: '' },

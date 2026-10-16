@@ -9,6 +9,7 @@ const BABY_TEETH = [
   // --- ВЕРХНЯЯ ЧЕЛЮСТЬ (Справа налево с точки зрения ребенка, т.е. 55 -> 51 -> 61 -> 65) ---
   {
     id: '55',
+    num: 5,
     name: 'Второй моляр',
     jaw: 'upper',
     side: 'right',
@@ -18,11 +19,12 @@ const BABY_TEETH = [
     normalAge: '23–31 мес.',
     avgAgeMonths: 27,
     order: 10,
-    x: 10, // процент по дуге
+    x: 12, // процент по дуге челюсти
     y: 80
   },
   {
     id: '54',
+    num: 4,
     name: 'Первый моляр',
     jaw: 'upper',
     side: 'right',
@@ -32,11 +34,12 @@ const BABY_TEETH = [
     normalAge: '13–19 мес.',
     avgAgeMonths: 16,
     order: 7,
-    x: 18,
+    x: 19,
     y: 54
   },
   {
     id: '53',
+    num: 3,
     name: 'Клык',
     jaw: 'upper',
     side: 'right',
@@ -46,11 +49,12 @@ const BABY_TEETH = [
     normalAge: '16–22 мес.',
     avgAgeMonths: 19,
     order: 8,
-    x: 28,
-    y: 32
+    x: 27,
+    y: 33
   },
   {
     id: '52',
+    num: 2,
     name: 'Боковой резец',
     jaw: 'upper',
     side: 'right',
@@ -60,11 +64,12 @@ const BABY_TEETH = [
     normalAge: '9–13 мес.',
     avgAgeMonths: 11,
     order: 4,
-    x: 39,
-    y: 16
+    x: 36,
+    y: 19
   },
   {
     id: '51',
+    num: 1,
     name: 'Центральный резец',
     jaw: 'upper',
     side: 'right',
@@ -74,11 +79,12 @@ const BABY_TEETH = [
     normalAge: '8–12 мес.',
     avgAgeMonths: 10,
     order: 2,
-    x: 47,
-    y: 10
+    x: 44, // Скорректировано для идеального расстояния от 61
+    y: 13
   },
   {
     id: '61',
+    num: 1,
     name: 'Центральный резец',
     jaw: 'upper',
     side: 'left',
@@ -88,11 +94,12 @@ const BABY_TEETH = [
     normalAge: '8–12 мес.',
     avgAgeMonths: 10,
     order: 3,
-    x: 53,
-    y: 10
+    x: 56, // Скорректировано для идеального зазора
+    y: 13
   },
   {
     id: '62',
+    num: 2,
     name: 'Боковой резец',
     jaw: 'upper',
     side: 'left',
@@ -102,11 +109,12 @@ const BABY_TEETH = [
     normalAge: '9–13 мес.',
     avgAgeMonths: 11,
     order: 5,
-    x: 61,
-    y: 16
+    x: 64,
+    y: 19
   },
   {
     id: '63',
+    num: 3,
     name: 'Клык',
     jaw: 'upper',
     side: 'left',
@@ -116,11 +124,12 @@ const BABY_TEETH = [
     normalAge: '16–22 мес.',
     avgAgeMonths: 19,
     order: 9,
-    x: 72,
-    y: 32
+    x: 73,
+    y: 33
   },
   {
     id: '64',
+    num: 4,
     name: 'Первый моляр',
     jaw: 'upper',
     side: 'left',
@@ -130,11 +139,12 @@ const BABY_TEETH = [
     normalAge: '13–19 мес.',
     avgAgeMonths: 16,
     order: 6,
-    x: 82,
+    x: 81,
     y: 54
   },
   {
     id: '65',
+    num: 5,
     name: 'Второй моляр',
     jaw: 'upper',
     side: 'left',
@@ -144,13 +154,14 @@ const BABY_TEETH = [
     normalAge: '23–31 мес.',
     avgAgeMonths: 27,
     order: 10,
-    x: 90,
+    x: 88,
     y: 80
   },
 
   // --- НИЖНЯЯ ЧЕЛЮСТЬ (85 -> 81 -> 71 -> 75) ---
   {
     id: '85',
+    num: 5,
     name: 'Второй моляр',
     jaw: 'lower',
     side: 'right',
@@ -160,11 +171,12 @@ const BABY_TEETH = [
     normalAge: '23–31 мес.',
     avgAgeMonths: 27,
     order: 10,
-    x: 10,
+    x: 12,
     y: 20
   },
   {
     id: '84',
+    num: 4,
     name: 'Первый моляр',
     jaw: 'lower',
     side: 'right',
@@ -174,11 +186,12 @@ const BABY_TEETH = [
     normalAge: '14–18 мес.',
     avgAgeMonths: 16,
     order: 7,
-    x: 18,
+    x: 19,
     y: 46
   },
   {
     id: '83',
+    num: 3,
     name: 'Клык',
     jaw: 'lower',
     side: 'right',
@@ -188,11 +201,12 @@ const BABY_TEETH = [
     normalAge: '17–23 мес.',
     avgAgeMonths: 20,
     order: 9,
-    x: 28,
-    y: 68
+    x: 27,
+    y: 67
   },
   {
     id: '82',
+    num: 2,
     name: 'Боковой резец',
     jaw: 'lower',
     side: 'right',
@@ -202,11 +216,12 @@ const BABY_TEETH = [
     normalAge: '10–16 мес.',
     avgAgeMonths: 13,
     order: 4,
-    x: 39,
-    y: 84
+    x: 36,
+    y: 81
   },
   {
     id: '81',
+    num: 1,
     name: 'Центральный резец',
     jaw: 'lower',
     side: 'right',
@@ -215,12 +230,13 @@ const BABY_TEETH = [
     type: 'incisor',
     normalAge: '6–10 мес.',
     avgAgeMonths: 8,
-    order: 1, // Самый первый обычно!
-    x: 47,
-    y: 90
+    order: 1,
+    x: 44, // Скорректировано
+    y: 87
   },
   {
     id: '71',
+    num: 1,
     name: 'Центральный резец',
     jaw: 'lower',
     side: 'left',
@@ -229,12 +245,13 @@ const BABY_TEETH = [
     type: 'incisor',
     normalAge: '6–10 мес.',
     avgAgeMonths: 8,
-    order: 1, // Тоже один из первых
-    x: 53,
-    y: 90
+    order: 1,
+    x: 56, // Скорректировано
+    y: 87
   },
   {
     id: '72',
+    num: 2,
     name: 'Боковой резец',
     jaw: 'lower',
     side: 'left',
@@ -244,11 +261,12 @@ const BABY_TEETH = [
     normalAge: '10–16 мес.',
     avgAgeMonths: 13,
     order: 5,
-    x: 61,
-    y: 84
+    x: 64,
+    y: 81
   },
   {
     id: '73',
+    num: 3,
     name: 'Клык',
     jaw: 'lower',
     side: 'left',
@@ -258,11 +276,12 @@ const BABY_TEETH = [
     normalAge: '17–23 мес.',
     avgAgeMonths: 20,
     order: 8,
-    x: 72,
-    y: 68
+    x: 73,
+    y: 67
   },
   {
     id: '74',
+    num: 4,
     name: 'Первый моляр',
     jaw: 'lower',
     side: 'left',
@@ -272,11 +291,12 @@ const BABY_TEETH = [
     normalAge: '14–18 мес.',
     avgAgeMonths: 16,
     order: 6,
-    x: 82,
+    x: 81,
     y: 46
   },
   {
     id: '75',
+    num: 5,
     name: 'Второй моляр',
     jaw: 'lower',
     side: 'left',
@@ -286,12 +306,12 @@ const BABY_TEETH = [
     normalAge: '23–31 мес.',
     avgAgeMonths: 27,
     order: 10,
-    x: 90,
+    x: 88,
     y: 20
   }
 ];
 
-// Симптомы при прорезывании для быстрого выбора
+// Симптомы при прорезывании
 const TOOTH_SYMPTOMS = [
   { id: 'drool', label: 'Слюни рекой', icon: '💧' },
   { id: 'fever', label: 'Температура', icon: '🤒' },
