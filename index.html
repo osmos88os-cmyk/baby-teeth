@@ -496,6 +496,70 @@
         </div>
       </div>
 
+      <!-- УВЕДОМЛЕНИЯ И НАПОМИНАНИЯ (ANDROID & IPHONE) -->
+      <div class="polaris-card p-5 space-y-3">
+        <div class="flex items-center justify-between">
+          <h2 class="font-bold text-slate-900 text-sm flex items-center space-x-2">
+            <span>🔔</span>
+            <span>Пуш-напоминания</span>
+          </h2>
+          <span :class="[
+            'text-[10px] font-semibold px-2 py-0.5 rounded-full',
+            notificationPermission === 'granted' ? 'bg-emerald-50 text-emerald-700 border border-emerald-200' :
+            notificationPermission === 'denied' ? 'bg-rose-50 text-rose-700 border border-rose-200' :
+            'bg-slate-100 text-slate-600 border border-slate-200'
+          ]">
+            {{ notificationPermission === 'granted' ? 'Включены ✓' : (notificationPermission === 'denied' ? 'Заблокированы ✕' : 'Не включены') }}
+          </span>
+        </div>
+
+        <p class="text-xs text-slate-500">
+          Присылает напоминание утром (09:00), вечером (20:30), а также если прошло более {{ profile.reminderIntervalHours || 8 }} ч. с последней чистки зубок.
+        </p>
+
+        <div class="space-y-2 pt-1">
+          <button v-if="notificationPermission !== 'granted'" 
+                  @click="requestNotifications" 
+                  class="w-full polaris-btn-action text-white py-3 px-3 rounded-2xl font-bold text-xs flex items-center justify-center space-x-2 shadow-sm">
+            <span>🔔</span>
+            <span>Включить напоминания</span>
+          </button>
+
+          <button @click="testPushNotification" 
+                  class="w-full bg-slate-50 hover:bg-slate-100 active:scale-98 text-slate-800 py-3 px-3 rounded-2xl font-semibold text-xs flex items-center justify-center space-x-2 transition border border-slate-200">
+            <span>📲</span>
+            <span>Отправить тестовый пуш на телефон</span>
+          </button>
+        </div>
+
+        <div class="text-[11px] text-slate-400 bg-slate-50 p-3 rounded-2xl border border-slate-100 space-y-1">
+          <p><b>🍎 Для iPhone:</b> добавьте сайт на экран «Домой» (в Safari нажать «Поделиться» ➔ «На экран Домой»).</p>
+          <p><b>🤖 Для Android:</b> пуш-уведомления работают прямо в браузере Chrome.</p>
+        </div>
+      </div>
+
+      <!-- СИНХРОНИЗАЦИЯ МЕЖДУ РОДИТЕЛЯМИ -->
+      <div class="polaris-card p-5 space-y-3">
+        <div class="flex items-center justify-between">
+          <h2 class="font-bold text-slate-900 text-sm flex items-center space-x-2">
+            <span>👨‍👩‍👧</span>
+            <span>Синхронизация с супругом(-ой)</span>
+          </h2>
+          <span class="text-[10px] bg-indigo-50 text-indigo-700 font-semibold px-2 py-0.5 rounded-full border border-indigo-200">
+            iOS ↔ Android
+          </span>
+        </div>
+
+        <p class="text-xs text-slate-500">
+          Если мама отметила новые зубки на iPhone, отправьте ссылку папе на Android (или наоборот). База перенесется в 1 клик.
+        </p>
+
+        <button @click="copySyncLink" class="w-full bg-indigo-50 hover:bg-indigo-100 active:scale-98 text-indigo-900 py-3 px-3 rounded-2xl font-bold text-xs flex items-center justify-center space-x-2 transition border border-indigo-200/80 shadow-xs">
+          <span>🔗</span>
+          <span>Скопировать ссылку для отправки в Telegram</span>
+        </button>
+      </div>
+
       <!-- РЕЗЕРВНАЯ КОПИЯ ДАННЫХ -->
       <div class="polaris-card p-5 space-y-3">
         <h2 class="font-bold text-slate-900 text-sm flex items-center space-x-2">
@@ -821,12 +885,75 @@
           <input type="checkbox" v-model="profileForm.soundEnabled" class="w-5 h-5 accent-indigo-600">
         </div>
 
+        <div class="pt-2 border-t border-slate-100">
+          <div class="flex items-center justify-between mb-2">
+            <span class="text-xs font-semibold text-slate-700">Пуш-напоминания:</span>
+            <input type="checkbox" v-model="profileForm.notificationsEnabled" class="w-5 h-5 accent-indigo-600">
+          </div>
+          <div v-if="profileForm.notificationsEnabled" class="mt-1">
+            <label class="block text-[11px] text-slate-500 mb-1">Напоминать, если не чистили более:</label>
+            <div class="grid grid-cols-3 gap-1.5 text-center">
+              <button type="button" @click="profileForm.reminderIntervalHours = 6"
+                      :class="['py-1.5 rounded-xl text-xs font-semibold border', profileForm.reminderIntervalHours === 6 ? 'bg-indigo-50 border-indigo-500 text-indigo-900 font-bold' : 'bg-slate-50 border-slate-200 text-slate-600']">
+                6ч
+              </button>
+              <button type="button" @click="profileForm.reminderIntervalHours = 8"
+                      :class="['py-1.5 rounded-xl text-xs font-semibold border', (profileForm.reminderIntervalHours === 8 || !profileForm.reminderIntervalHours) ? 'bg-indigo-50 border-indigo-500 text-indigo-900 font-bold' : 'bg-slate-50 border-slate-200 text-slate-600']">
+                8ч
+              </button>
+              <button type="button" @click="profileForm.reminderIntervalHours = 12"
+                      :class="['py-1.5 rounded-xl text-xs font-semibold border', profileForm.reminderIntervalHours === 12 ? 'bg-indigo-50 border-indigo-500 text-indigo-900 font-bold' : 'bg-slate-50 border-slate-200 text-slate-600']">
+                12ч
+              </button>
+            </div>
+          </div>
+        </div>
+
         <div class="pt-2 flex space-x-2">
           <button @click="showSettingsModal = false" class="flex-1 py-2.5 rounded-xl border border-slate-200 text-slate-600 text-xs font-semibold">
             Отмена
           </button>
           <button @click="saveSettings" class="flex-1 bg-slate-900 text-white py-2.5 rounded-xl font-bold text-xs shadow-sm">
             Сохранить
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- МОДАЛЬНОЕ ОКНО СИНХРОНИЗАЦИИ (ССЫЛКА ОТ ВТОРОГО РОДИТЕЛЯ) -->
+    <div v-if="showSyncModal" class="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm p-4 animate-fade-in">
+      <div class="bg-white w-full max-w-sm rounded-[32px] p-6 space-y-4 shadow-2xl text-center">
+        <div class="w-14 h-14 mx-auto rounded-3xl bg-indigo-50 border border-indigo-100 flex items-center justify-center text-3xl">
+          🔄
+        </div>
+        <div>
+          <h3 class="font-bold text-slate-900 text-base">Данные от второго родителя</h3>
+          <p class="text-xs text-slate-500 mt-1">
+            Вы перешли по ссылке синхронизации. Хотите обновить зубки и историю чисток на этом устройстве?
+          </p>
+        </div>
+
+        <div v-if="pendingSyncData" class="bg-slate-50 p-3 rounded-2xl text-xs space-y-1.5 text-left border border-slate-100">
+          <div class="flex justify-between">
+            <span class="text-slate-400">Малыш:</span>
+            <span class="font-bold text-slate-900">{{ pendingSyncData.profile?.babyName || '—' }}</span>
+          </div>
+          <div class="flex justify-between">
+            <span class="text-slate-400">Отмечено зубок:</span>
+            <span class="font-bold text-emerald-700">{{ Object.keys(pendingSyncData.teeth || {}).length }}</span>
+          </div>
+          <div class="flex justify-between">
+            <span class="text-slate-400">Записей чисток:</span>
+            <span class="font-bold text-indigo-700">{{ (pendingSyncData.brushings || []).length }}</span>
+          </div>
+        </div>
+
+        <div class="pt-2 flex space-x-2">
+          <button @click="cancelSyncImport" class="flex-1 py-3 rounded-2xl border border-slate-200 text-slate-600 font-semibold text-xs">
+            Отклонить
+          </button>
+          <button @click="confirmSyncImport" class="flex-1 polaris-btn-action text-white py-3 rounded-2xl font-bold text-xs shadow-md">
+            Загрузить ✓
           </button>
         </div>
       </div>
@@ -843,6 +970,7 @@
   <script src="js/teeth-data.js"></script>
   <script src="js/audio.js"></script>
   <script src="js/storage.js"></script>
+  <script src="js/notifications.js"></script>
   <script src="js/app.js"></script>
 </body>
 </html>

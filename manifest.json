@@ -1,11 +1,13 @@
 {
   "name": "Зубки малыша — Трекер и Чистка",
   "short_name": "Зубки",
-  "description": "Дневник прорезывания зубок и трекер чистки зубов для малыша",
+  "id": "./",
   "start_url": "./index.html",
+  "scope": "./",
+  "description": "Дневник прорезывания зубок и трекер чистки зубов для малыша",
   "display": "standalone",
   "background_color": "#F8FAFC",
-  "theme_color": "#0EA5E9",
+  "theme_color": "#0F172A",
   "orientation": "portrait",
   "icons": [
     {

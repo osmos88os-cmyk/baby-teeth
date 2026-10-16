@@ -467,6 +467,82 @@ const app = createApp({
       }
     };
 
+    // --- УВЕДОМЛЕНИЯ И НАПОМИНАНИЯ (ANDROID & IPHONE) ---
+    const notificationPermission = ref(notificationManager.getPermissionStatus());
+    let reminderIntervalId = null;
+
+    const requestNotifications = async () => {
+      soundFX.playPop();
+      const granted = await notificationManager.requestPermission();
+      notificationPermission.value = notificationManager.getPermissionStatus();
+      if (granted) {
+        profileForm.value.notificationsEnabled = true;
+        appStorage.updateProfile({ notificationsEnabled: true });
+        profile.value = { ...appStorage.data.profile };
+        showToast('Уведомления включены! 🔔', 'success');
+        await notificationManager.sendTestNotification();
+      } else {
+        showToast('Разрешение на пуши не получено', 'info');
+      }
+    };
+
+    const testPushNotification = async () => {
+      soundFX.playPop();
+      const res = await notificationManager.sendTestNotification();
+      if (res.success) {
+        showToast('Тестовый пуш отправлен! Проверьте шторку 📲', 'success');
+      } else {
+        showToast('Не удалось отправить. Проверьте разрешения', 'error');
+      }
+    };
+
+    // --- СИНХРОНИЗАЦИЯ МЕЖДУ ПАПОЙ И МАМОЙ (IPHONE ⇄ ANDROID) ---
+    const pendingSyncData = ref(null);
+    const showSyncModal = ref(false);
+
+    const copySyncLink = () => {
+      soundFX.playPop();
+      const link = appStorage.generateShareLink();
+      if (navigator.clipboard) {
+        navigator.clipboard.writeText(link).then(() => {
+          showToast('Ссылка скопирована! Отправьте ее в Telegram/WhatsApp 🔗', 'success');
+        }).catch(() => {
+          prompt('Скопируйте ссылку для передачи данных второму родителю:', link);
+        });
+      } else {
+        prompt('Скопируйте ссылку для передачи данных второму родителю:', link);
+      }
+    };
+
+    const confirmSyncImport = () => {
+      if (!pendingSyncData.value) return;
+      appStorage.data = {
+        profile: { ...appStorage.getDefaultData().profile, ...(pendingSyncData.value.profile || {}) },
+        teeth: pendingSyncData.value.teeth || {},
+        brushings: Array.isArray(pendingSyncData.value.brushings) ? pendingSyncData.value.brushings : []
+      };
+      appStorage.save();
+      profile.value = { ...appStorage.data.profile };
+      teethData.value = { ...appStorage.data.teeth };
+      brushings.value = [...appStorage.data.brushings];
+      showSyncModal.value = false;
+      pendingSyncData.value = null;
+      try {
+        history.replaceState(null, '', window.location.pathname);
+      } catch (e) {}
+      soundFX.playSuccess();
+      showToast('Данные успешно синхронизированы! 🎉', 'success');
+      if (window.confetti) window.confetti({ particleCount: 70, spread: 70 });
+    };
+
+    const cancelSyncImport = () => {
+      showSyncModal.value = false;
+      pendingSyncData.value = null;
+      try {
+        history.replaceState(null, '', window.location.pathname);
+      } catch (e) {}
+    };
+
     const dismissPwaBanner = () => {
       showPwaBanner.value = false;
       localStorage.setItem('pwa_banner_dismissed', 'true');
@@ -474,15 +550,44 @@ const app = createApp({
 
     onMounted(() => {
       soundFX.enabled = profile.value.soundEnabled;
+      notificationPermission.value = notificationManager.getPermissionStatus();
+
+      // Регистрация Service Worker v2
       if ('serviceWorker' in navigator) {
         navigator.serviceWorker.register('./sw.js').catch(err => {
           console.warn('SW register error', err);
         });
       }
+
+      // Проверка ссылки синхронизации (если перешли по ссылке от второго родителя)
+      if (window.location.hash && window.location.hash.includes('sync=')) {
+        const decoded = appStorage.decodeShareData(window.location.hash);
+        if (decoded) {
+          pendingSyncData.value = decoded;
+          showSyncModal.value = true;
+        }
+      }
+
+      // Проверка напоминаний о чистке зубок (при запуске и периодически)
+      setTimeout(() => {
+        notificationManager.checkReminders(appStorage.data);
+      }, 3000);
+
+      reminderIntervalId = setInterval(() => {
+        notificationManager.checkReminders(appStorage.data);
+      }, 15 * 60 * 1000);
+
+      // Проверка при возвращении на вкладку
+      document.addEventListener('visibilitychange', () => {
+        if (!document.hidden) {
+          notificationManager.checkReminders(appStorage.data);
+        }
+      });
     });
 
     onUnmounted(() => {
       clearInterval(timerInterval);
+      clearInterval(reminderIntervalId);
     });
 
     return {
@@ -554,6 +659,16 @@ const app = createApp({
       importBackupFromFile,
       loadDemo,
       clearAllData,
+      // Уведомления и пуши
+      notificationPermission,
+      requestNotifications,
+      testPushNotification,
+      // Синхронизация между родителями
+      pendingSyncData,
+      showSyncModal,
+      copySyncLink,
+      confirmSyncImport,
+      cancelSyncImport,
       // Toast
       toast,
       // Форматирование

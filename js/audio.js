@@ -19,6 +19,13 @@ class SoundFX {
 
   // Мягкий клик / «бульк» при тапе на кнопку или зуб
   playPop() {
+    // Нативная тактильная отдача для Android
+    try {
+      if (typeof navigator !== 'undefined' && navigator.vibrate) {
+        navigator.vibrate(25);
+      }
+    } catch (e) {}
+
     if (!this.enabled) return;
     try {
       this.init();

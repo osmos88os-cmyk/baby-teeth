@@ -14,7 +14,9 @@ class AppStorage {
         birthDate: '',
         timerDuration: 60, // секунды (60 или 120)
         soundEnabled: true,
-        showToothNumbers: false // По умолчанию чистый вид без номеров
+        showToothNumbers: false, // По умолчанию чистый вид без номеров
+        notificationsEnabled: true,
+        reminderIntervalHours: 8 // Напоминать о чистке, если прошло более 8 часов
       },
       teeth: {
         // id зубика -> { status: 'none'|'erupting'|'erupted'|'erupted_earlier', date: 'YYYY-MM-DD'|'', dateUnknown: boolean, notes: '', symptoms: [] }
@@ -298,6 +300,41 @@ class AppStorage {
       return { success: false, error: e.message };
     }
     return { success: false, error: 'Неверный формат данных' };
+  }
+
+  // Генерация защищенной ссылки для быстрой передачи данных между папой и мамой
+  generateShareLink() {
+    try {
+      const jsonStr = JSON.stringify(this.data);
+      const b64 = btoa(encodeURIComponent(jsonStr).replace(/%([0-9A-F]{2})/g, (match, p1) => {
+        return String.fromCharCode('0x' + p1);
+      }));
+      const base = window.location.origin + window.location.pathname;
+      return `${base}#sync=${encodeURIComponent(b64)}`;
+    } catch (e) {
+      console.error('Ошибка генерации ссылки синхронизации', e);
+      return '';
+    }
+  }
+
+  // Расшифровка данных из ссылки синхронизации
+  decodeShareData(hash) {
+    try {
+      if (!hash) return null;
+      const match = hash.match(/sync=([^&]+)/);
+      if (!match) return null;
+      const b64 = decodeURIComponent(match[1]);
+      const jsonStr = decodeURIComponent(Array.prototype.map.call(atob(b64), (c) => {
+        return '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2);
+      }).join(''));
+      const parsed = JSON.parse(jsonStr);
+      if (parsed && typeof parsed === 'object') {
+        return parsed;
+      }
+    } catch (e) {
+      console.error('Ошибка расшифровки ссылки синхронизации', e);
+    }
+    return null;
   }
 
   loadDemoData() {
